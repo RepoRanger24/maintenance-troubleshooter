@@ -19,9 +19,12 @@ E) Safety notes (short)
 st.set_page_config(page_title="Maintenance Troubleshooter", page_icon="🔧")
 st.title("🔧 Maintenance Troubleshooter")
 st.caption("Type a problem. Get a fast troubleshooting plan.")
-
+# Session state for textbox
+if "problem_text" not in st.session_state:
+    st.session_state.problem_text = ""
 problem = st.text_area(
     "Describe the problem",
+    key="problem_text",
     height=140,
     placeholder="Example: Motor trips overload after 15 minutes on a pump. 480V 3-phase."
 )
@@ -31,7 +34,13 @@ st.divider()
 # -------- API KEY --------
 api_key = os.getenv("OPENAI_API_KEY", "")
 
-if st.button("Troubleshoot", type="primary", disabled=(not problem.strip())):
+col1, col2 = st.columns(2)
+
+with col1:
+    troubleshoot_clicked = st.button("Troubleshoot", type="primary", disabled=(not problem.strip()))
+
+with col2:
+    reset_clicked = st.button("Reset")
 
     if not api_key:
         st.error("Missing OPENAI_API_KEY in Streamlit Secrets.")
