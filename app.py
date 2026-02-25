@@ -52,8 +52,6 @@ if "form_id" not in st.session_state:
 if "last_result" not in st.session_state:
     st.session_state.last_result = ""
 
-)
-
 st.divider()
 
 # -------- API KEY --------
