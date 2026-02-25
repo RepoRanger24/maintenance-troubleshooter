@@ -40,7 +40,7 @@ st.title("🔧 Maintenance Troubleshooter")
 st.caption("Type a problem. Get a fast troubleshooting plan.")
 problem = st.text_area(
     "Describe the problem",
-    key=f"problem_text_{st.session_state.form_id}",
+    key=f"problem_text_{st.session_state['form_id']}",
     height=140,
     placeholder="Example: Motor trips overload after 15 minutes on a pump. 480V 3-phase."
 )
