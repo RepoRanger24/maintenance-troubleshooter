@@ -33,15 +33,25 @@ st.divider()
 
 # -------- API KEY --------
 api_key = os.getenv("OPENAI_API_KEY", "")
-
 col1, col2 = st.columns(2)
 
 with col1:
-    troubleshoot_clicked = st.button("Troubleshoot", type="primary", disabled=(not problem.strip()))
+    troubleshoot_clicked = st.button(
+        "Troubleshoot",
+        type="primary",
+        disabled=(not problem.strip())
+    )
 
 with col2:
     reset_clicked = st.button("Reset")
 
+# --- Reset behavior ---
+if reset_clicked:
+    st.session_state.problem_text = ""
+    st.rerun()
+
+# --- Run troubleshooting only when clicked ---
+if troubleshoot_clicked:
     if not api_key:
         st.error("Missing OPENAI_API_KEY in Streamlit Secrets.")
         st.stop()
