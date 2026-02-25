@@ -37,7 +37,7 @@ problem = st.text_area(
 
 st.divider()
 
-api_key = os.getenv("OPENAI_API_KEY", "")
+api_key = st.secrets["OPENAI_API_KEY"]
 
 if st.button("Troubleshoot", type="primary", disabled=(not problem.strip())):
     if not api_key:
