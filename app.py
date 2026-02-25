@@ -64,9 +64,14 @@ with col1:
 with col2:
     reset_clicked = st.button("Reset")
 
+# Session state for last result
+if "last_result" not in st.session_state:
+    st.session_state.last_result = ""
+
 # --- Reset behavior ---
 if reset_clicked:
     st.session_state.problem_text = ""
+    st.session_state.last_result = ""
     st.rerun()
 
 # --- Run troubleshooting only when clicked ---
@@ -86,5 +91,17 @@ if troubleshoot_clicked:
             ],
         )
 
+    # Save result to session memory
+    st.session_state.last_result = resp.output_text
+
+# --- Display result if we have one ---
+if st.session_state.last_result:
     st.subheader("Result")
-    st.write(resp.output_text)
+    st.write(st.session_state.last_result)
+
+    st.download_button(
+        "Download as text",
+        data=st.session_state.last_result,
+        file_name="maintenance_troubleshooting_plan.txt",
+        mime="text/plain",
+    )
