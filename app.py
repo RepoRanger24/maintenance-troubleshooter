@@ -38,14 +38,20 @@ H) Safety notes (short)
 st.set_page_config(page_title="Maintenance Troubleshooter", page_icon="🔧")
 st.title("🔧 Maintenance Troubleshooter")
 st.caption("Type a problem. Get a fast troubleshooting plan.")
-# Session state for textbox
-if "problem_text" not in st.session_state:
-    st.session_state.problem_text = ""
 problem = st.text_area(
     "Describe the problem",
-    key="problem_text",
+    key=f"problem_text_{st.session_state.form_id}",
     height=140,
     placeholder="Example: Motor trips overload after 15 minutes on a pump. 480V 3-phase."
+)
+# Session state for rebuilding textbox safely
+if "form_id" not in st.session_state:
+    st.session_state.form_id = 0
+
+# Session state for last result
+if "last_result" not in st.session_state:
+    st.session_state.last_result = ""
+
 )
 
 st.divider()
@@ -70,8 +76,8 @@ if "last_result" not in st.session_state:
 
 # --- Reset behavior ---
 if reset_clicked:
-    st.session_state.problem_text = ""
     st.session_state.last_result = ""
+    st.session_state.form_id += 1
     st.rerun()
 
 # --- Run troubleshooting only when clicked ---
