@@ -46,6 +46,10 @@ if "form_id" not in st.session_state:
 if "last_result" not in st.session_state:
     st.session_state["last_result"] = ""
 # --- Alarm code (optional) ---
+machine_model = st.text_input(
+    "Machine / Control Model (optional)",
+    placeholder="Example: Fanuc 31i, Haas VF2, Okuma OSP, Siemens 840D..."
+)
 alarm_code = st.text_input(
     "Alarm code (optional)",
     key=f"alarm_code_{st.session_state['form_id']}",
@@ -60,8 +64,7 @@ problem = st.text_area(
 )
 
 # <-- add this line right here
-has_input = bool(alarm_code.strip() or problem.strip())
-
+has_input = bool(machine_model.strip() or alarm_code.strip() or problem.strip())
 st.divider()
 
 # -------- API KEY --------
@@ -94,10 +97,7 @@ if troubleshoot_clicked:
     client = OpenAI(api_key=api_key)
 # --- Combine Alarm Code + Problem ---
 user_input = ""
-machine_model = st.text_input(
-    "Machine / Control Model (optional)",
-    placeholder="Example: Fanuc 31i, Haas VF2, Okuma OSP, Siemens 840D..."
-)
+
 # --- Combine ALL user inputs ---
 user_input = ""
 
