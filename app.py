@@ -94,12 +94,25 @@ if troubleshoot_clicked:
     client = OpenAI(api_key=api_key)
 # --- Combine Alarm Code + Problem ---
 user_input = ""
+machine_model = st.text_input(
+    "Machine / Control Model (optional)",
+    placeholder="Example: Fanuc 31i, Haas VF2, Okuma OSP, Siemens 840D..."
+)
+# --- Combine ALL user inputs ---
+user_input = ""
+
+if machine_model.strip():
+    user_input += f"Machine/control: {machine_model.strip()}\n"
 
 if alarm_code.strip():
     user_input += f"Alarm code: {alarm_code.strip()}\n"
 
 if problem.strip():
     user_input += f"Problem description: {problem.strip()}\n"
+
+if not user_input.strip():
+    st.warning("Enter a machine model, alarm code, or problem description.")
+    st.stop()
     with st.spinner("Thinking like a senior tech..."):
         resp = client.responses.create(
             model="gpt-5-mini",
