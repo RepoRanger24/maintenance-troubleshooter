@@ -76,7 +76,7 @@ with col1:
     troubleshoot_clicked = st.button(
         "Troubleshoot",
         type="primary",
-   disabled=(not (problem.strip() or alarm_code.strip()))     
+        disabled=(not has_input)
     )
 
 with col2:
@@ -112,8 +112,10 @@ if problem.strip():
 
 if not user_input.strip():
     st.warning("Enter a machine model, alarm code, or problem description.")
-    st.stop()
-    with st.spinner("Thinking like a senior tech..."):
+    st.stop() 
+    
+with st.spinner("Thinking like a senior tech..."):
+      
         resp = client.responses.create(
             model="gpt-5-mini",
             input=[
