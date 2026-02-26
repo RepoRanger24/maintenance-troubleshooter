@@ -45,7 +45,12 @@ if "form_id" not in st.session_state:
 
 if "last_result" not in st.session_state:
     st.session_state["last_result"] = ""
-
+# --- Alarm code (optional) ---
+alarm_code = st.text_input(
+    "Alarm code (optional)",
+    key=f"alarm_code_{st.session_state['form_id']}",
+    placeholder="Example: FANUC 401, SV0407, DTERR, OC, etc."
+)
 # --- Textbox ---
 problem = st.text_area(
     "Describe the problem",
@@ -64,7 +69,7 @@ with col1:
     troubleshoot_clicked = st.button(
         "Troubleshoot",
         type="primary",
-        disabled=(not problem.strip())
+   disabled=(not (problem.strip() or alarm_code.strip()))     
     )
 
 with col2:
@@ -83,13 +88,20 @@ if troubleshoot_clicked:
         st.stop()
 
     client = OpenAI(api_key=api_key)
+# --- Combine Alarm Code + Problem ---
+user_input = ""
 
+if alarm_code.strip():
+    user_input += f"Alarm code: {alarm_code.strip()}\n"
+
+if problem.strip():
+    user_input += f"Problem description: {problem.strip()}\n"
     with st.spinner("Thinking like a senior tech..."):
         resp = client.responses.create(
             model="gpt-5-mini",
             input=[
                 {"role": "system", "content": PROMPT_V2},
-                {"role": "user", "content": problem.strip()},
+                {"role": "user", "content": user_input.strip()},    
             ],
         )
 
