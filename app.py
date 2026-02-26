@@ -55,3 +55,55 @@ problem = st.text_area(
 )
 
 st.divider()
+# -------- API KEY --------
+api_key = os.getenv("OPENAI_API_KEY", "")
+
+col1, col2 = st.columns([1, 1])
+
+with col1:
+    troubleshoot_clicked = st.button(
+        "Troubleshoot",
+        type="primary",
+        disabled=(not problem.strip())
+    )
+
+with col2:
+    reset_clicked = st.button("Reset")
+
+# --- Reset behavior ---
+if reset_clicked:
+    st.session_state["last_result"] = ""
+    st.session_state["form_id"] += 1
+    st.rerun()
+
+# --- Run troubleshooting only when clicked ---
+if troubleshoot_clicked:
+    if not api_key:
+        st.error("Missing OPENAI_API_KEY in Streamlit Secrets.")
+        st.stop()
+
+    client = OpenAI(api_key=api_key)
+
+    with st.spinner("Thinking like a senior tech..."):
+        resp = client.responses.create(
+            model="gpt-5-mini",
+            input=[
+                {"role": "system", "content": PROMPT_V2},
+                {"role": "user", "content": problem.strip()},
+            ],
+        )
+
+    # Save result to session memory
+    st.session_state["last_result"] = resp.output_text
+
+# --- Display result if we have one ---
+if st.session_state["last_result"]:
+    st.subheader("Result")
+    st.write(st.session_state["last_result"])
+
+    st.download_button(
+        "Download as text",
+        data=st.session_state["last_result"],
+        file_name="maintenance_troubleshooting_plan.txt",
+        mime="text/plain",
+    )
