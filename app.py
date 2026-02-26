@@ -59,7 +59,11 @@ problem = st.text_area(
     placeholder="Example: Motor trips overload after 15 minutes on a pump. 480V 3-phase."
 )
 
+# <-- add this line right here
+has_input = bool(alarm_code.strip() or problem.strip())
+
 st.divider()
+
 # -------- API KEY --------
 api_key = os.getenv("OPENAI_API_KEY", "")
 
