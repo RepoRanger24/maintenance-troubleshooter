@@ -48,6 +48,7 @@ if "last_result" not in st.session_state:
 # --- Alarm code (optional) ---
 machine_model = st.text_input(
     "Machine / Control Model (optional)",
+    key=f"machine_model_{st.session_state['form_id']}",
     placeholder="Example: Fanuc 31i, Haas VF2, Okuma OSP, Siemens 840D..."
 )
 alarm_code = st.text_input(
@@ -87,46 +88,43 @@ if reset_clicked:
     st.session_state["last_result"] = ""
     st.session_state["form_id"] += 1
     st.rerun()
-
-# --- Run troubleshooting only when clicked ---
+  # --- Run troubleshooting only when clicked ---
 if troubleshoot_clicked:
     if not api_key:
         st.error("Missing OPENAI_API_KEY in Streamlit Secrets.")
         st.stop()
 
     client = OpenAI(api_key=api_key)
-# --- Combine Alarm Code + Problem ---
-user_input = ""
 
-# --- Combine ALL user inputs ---
-user_input = ""
+    # --- Combine ALL user inputs ---
+    user_input = ""
 
-if machine_model.strip():
-    user_input += f"Machine/control: {machine_model.strip()}\n"
+    if machine_model.strip():
+        user_input += f"Machine/control: {machine_model.strip()}\n"
 
-if alarm_code.strip():
-    user_input += f"Alarm code: {alarm_code.strip()}\n"
+    if alarm_code.strip():
+        user_input += f"Alarm code: {alarm_code.strip()}\n"
 
-if problem.strip():
-    user_input += f"Problem description: {problem.strip()}\n"
+    if problem.strip():
+        user_input += f"Problem description: {problem.strip()}\n"
 
-if not user_input.strip():
-    st.warning("Enter a machine model, alarm code, or problem description.")
-    st.stop() 
-    
-with st.spinner("Thinking like a senior tech..."):
-      
+    if not user_input.strip():
+        st.warning("Enter a machine model, alarm code, or problem description.")
+        st.stop()
+
+    with st.spinner("Thinking like a senior tech..."):
         resp = client.responses.create(
             model="gpt-5-mini",
             input=[
                 {"role": "system", "content": PROMPT_V2},
-                {"role": "user", "content": user_input.strip()},    
+                {"role": "user", "content": user_input.strip()},
             ],
         )
 
     # Save result to session memory
     st.session_state["last_result"] = resp.output_text
 
+    
 # --- Display result if we have one ---
 if st.session_state["last_result"]:
     st.subheader("Result")
