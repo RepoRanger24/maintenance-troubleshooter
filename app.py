@@ -2,7 +2,7 @@ import os
 import streamlit as st
 from openai import OpenAI
 
-# -------- SHORTER PROMPT --------"""
+# -------- SHORTER PROMPT --------
 PROMPT_V2 = """You are an industrial maintenance troubleshooting assistant for shop-floor technicians.
 Your job is to produce fast, practical isolation steps and likely causes.
 
@@ -44,6 +44,7 @@ Hard limits for QUICK MODE:
 """
 """
 # <-- this closes PROMPT_V2
+
 
 DEEP_ADDON = """
 DEEP MODE (only when selected):
@@ -153,7 +154,7 @@ if troubleshoot_clicked:
         resp = client.responses.create(
             model="gpt-5-mini",
             input=[
-                {"role": "system", "content": PROMPT_V2},
+             {"role": "system", "content": PROMPT_V2 + (DEEP_ADDON if mode == "Deep" else "")},  
                 {"role": "user", "content": user_input.strip()},
             ],
         )
