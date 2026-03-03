@@ -107,9 +107,9 @@ st.divider()
 api_key = os.getenv("OPENAI_API_KEY", "")
 
 col1, col2 = st.columns([1, 1])
-
-with col1:
 has_input = any([
+with col1:
+
     machine_model.strip(),
     alarm_code.strip(),
     problem.strip()
