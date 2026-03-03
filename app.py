@@ -99,32 +99,36 @@ problem = st.text_area(
     placeholder="Example: Motor trips overload after 15 minutes on a pump. 480V 3-phase."
 )
 
-# <-- add this line right here
+
 
 st.divider()
 
 # -------- API KEY --------
 api_key = os.getenv("OPENAI_API_KEY", "")
-
-col1, col2 = st.columns([1, 1])
+# -------- BUTTON LOGIC --------
 has_input = any([
-with col1:
-
     machine_model.strip(),
     alarm_code.strip(),
     problem.strip()
 ])
 
+col1, col2 = st.columns([1, 1])
+
 with col1:
     troubleshoot_clicked = st.button(
         "Troubleshoot",
         type="primary" if has_input else "secondary",
-        disabled=not has_input
+        disabled=not has_input,
+        key=f"troubleshoot_{st.session_state['form_id']}",
     )
 
 with col2:
-    reset_clicked = st.button("Reset")
+    reset_clicked = st.button(
+        "Reset",
+        key=f"reset_{st.session_state['form_id']}",
+    )
 
+  
 # --- Reset behavior ---
 if reset_clicked:
     st.session_state["last_result"] = ""
