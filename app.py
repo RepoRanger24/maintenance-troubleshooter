@@ -100,7 +100,7 @@ problem = st.text_area(
 )
 
 # <-- add this line right here
-has_input = bool(machine_model.strip() or alarm_code.strip() or problem.strip())
+
 st.divider()
 
 # -------- API KEY --------
@@ -109,10 +109,17 @@ api_key = os.getenv("OPENAI_API_KEY", "")
 col1, col2 = st.columns([1, 1])
 
 with col1:
+has_input = any([
+    machine_model.strip(),
+    alarm_code.strip(),
+    problem.strip()
+])
+
+with col1:
     troubleshoot_clicked = st.button(
         "Troubleshoot",
-        type="primary",
-        disabled=(not has_input)
+        type="primary" if has_input else "secondary",
+        disabled=not has_input
     )
 
 with col2:
