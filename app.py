@@ -41,10 +41,7 @@ Hard limits for QUICK MODE:
 - Total output must be 12 lines or fewer.
 - Causes must be 1 to 3 bullets (ranked).
 - Fast checks must be 2 to 4 steps.
-# -------- SHORTER PROMPT --------
-
-# <-- this closes PROMPT_V2
-
+"""
 
 DEEP_ADDON = """
 DEEP MODE (only when selected):
