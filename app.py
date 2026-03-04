@@ -1,6 +1,8 @@
 import os
 import streamlit as st
+import pandas as pd
 from openai import OpenAI
+manual_db = pd.read_csv("data/manual_library.csv")
 
 # -------- SHORTER PROMPT --------
 PROMPT_V2 = """You are an industrial maintenance troubleshooting assistant for shop-floor technicians.
