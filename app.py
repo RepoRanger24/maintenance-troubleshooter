@@ -76,6 +76,19 @@ st.set_page_config(page_title="Maintenance Troubleshooter", page_icon="🔧")
 st.title("🔧 Maintenance Troubleshooter")
 st.caption("Type a problem. Get a fast troubleshooting plan.")
 mode = st.radio("Mode", ["Quick", "Deep"], horizontal=True)
+
+# ---- Manual Library Search ----
+st.subheader("Manual Search")
+
+q = st.text_input("Search manuals (example: SQ5, air pressure, barloader fault)")
+
+if q:
+    cols = [c for c in manual_db.columns]
+    haystack = manual_db[cols].astype(str).agg(" | ".join, axis=1)
+    hits = manual_db[haystack.str.contains(q, case=False, na=False)].copy()
+
+    st.caption(f"Matches: {len(hits)}")
+    st.dataframe(hits, use_container_width=True)
 # --- Session state (must be BEFORE widgets that use these keys) ---
 if "form_id" not in st.session_state:
     st.session_state["form_id"] = 0
