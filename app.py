@@ -79,7 +79,43 @@ mode = st.radio("Mode", ["Quick", "Deep"], horizontal=True)
 
 # ---- Manual Library Search ----
 st.subheader("Manual Search")
+# ---- Manual Library Search ----
+st.subheader("Manual Search")
 
+# Filters (optional)
+category = st.selectbox(
+    "Category (optional)",
+    ["All"] + sorted(manual_db["category"].dropna().unique().tolist())
+)
+
+manufacturer = st.selectbox(
+    "Manufacturer (optional)",
+    ["All"] + sorted(manual_db["manufacturer"].dropna().unique().tolist())
+)
+
+model = st.selectbox(
+    "Model (optional)",
+    ["All"] + sorted(manual_db["model"].dropna().unique().tolist())
+)
+
+# Apply filters
+filtered = manual_db.copy()
+if category != "All":
+    filtered = filtered[filtered["category"] == category]
+if manufacturer != "All":
+    filtered = filtered[filtered["manufacturer"] == manufacturer]
+if model != "All":
+    filtered = filtered[filtered["model"] == model]
+
+q = st.text_input("Search manuals (example: SQ5, air pressure, barloader fault)")
+
+if q:
+    cols = [c for c in filtered.columns]
+    haystack = filtered[cols].astype(str).agg(" | ".join, axis=1)
+    hits = filtered[haystack.str.contains(q, case=False, na=False)].copy()
+
+    st.caption(f"Matches: {len(hits)}")
+    st.dataframe(hits, use_container_width=True)
 q = st.text_input("Search manuals (example: SQ5, air pressure, barloader fault)")
 
 if q:
