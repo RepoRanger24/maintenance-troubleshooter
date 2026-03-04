@@ -79,8 +79,7 @@ mode = st.radio("Mode", ["Quick", "Deep"], horizontal=True)
 
 # ---- Manual Library Search ----
 st.subheader("Manual Search")
-# ---- Manual Library Search ----
-st.subheader("Manual Search")
+
 
 # Filters (optional)
 category = st.selectbox(
