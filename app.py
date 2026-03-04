@@ -4,11 +4,11 @@ import pandas as pd
 from openai import OpenAI
 MANUAL_CSV = os.path.join(os.path.dirname(__file__), "data", "manual_library.csv")
 
-st.write("Manual CSV path:", MANUAL_CSV)
+
 
 try:
     manual_db = pd.read_csv(MANUAL_CSV)
-    st.write("Manual rows loaded:", len(manual_db))
+    
 except Exception as e:
     st.error(f"Failed to load manual CSV: {e}")
     manual_db = pd.DataFrame()
