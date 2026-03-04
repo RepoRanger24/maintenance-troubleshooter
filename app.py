@@ -118,11 +118,10 @@ if model != "All":
 q = st.text_input("Search manuals (example: SQ5, air pressure, barloader fault)")
 
 if q:
-    cols = [c for c in filtered.columns]
+    cols = list(filtered.columns)
     haystack = filtered[cols].astype(str).agg(" | ".join, axis=1)
-   
 
-    hits = manual_db[haystack.str.contains(q, case=False, na=False)].copy()
+    hits = filtered[haystack.str.contains(q, case=False, na=False)].copy()
 
     st.caption(f"Matches: {len(hits)}")
     st.dataframe(hits, use_container_width=True)
