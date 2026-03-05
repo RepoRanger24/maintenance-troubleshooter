@@ -115,8 +115,7 @@ if manufacturer != "All":
 if model != "All":
     filtered = filtered[filtered["model"] == model]
 
-q = st.text_input("Search manuals (example: SQ5, air pressure, barloader fault)")
-
+q = st.text_input("Search manuals (example: SQ5, air pressure, barloader fault)", key="manual_search")
 if q:
     cols = list(filtered.columns)
     haystack = filtered[cols].astype(str).agg(" | ".join, axis=1)
