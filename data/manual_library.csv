@@ -1,6 +1,6 @@
 id,category,manufacturer,model,section,alarm_code,plc_input,symptom,causes,checks_steps,fix,notes,source
 
-tryton112_sp1,Barloader,LNS,Tryton 112,Alarms,Air Pressure Failure,SP1,"Barloader faults on air pressure",Plant air pressure low; Regulator set too low; Air filter clogged; SP1 pressure switch misadjusted; Air leak in supply line
+tryton112_sp1,Barloader,LNS,Tryton 112,Alarms,Air Pressure Failure,SP1,"Barloader faults on air pressure",Plant air pressure low; Regulator set too low; Air filter clogged; SP1 pressure switch misadjusted; Air leak in supply line,,,,
 
 tryton112_sq5,Barloader,LNS,Tryton 112,Sensors,SQ5,"Bar position sensor","Bar not detected","SQ5 misaligned; Sensor dirty; Wiring loose","Inspect SQ5 sensor alignment; Clean sensor face; Check wiring","Realign or replace SQ5 sensor","Often triggered during loading cycle","LNS Tryton 112 Manual"
 
