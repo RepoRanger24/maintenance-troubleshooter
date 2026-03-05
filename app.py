@@ -2,6 +2,12 @@ import os
 import streamlit as st
 import pandas as pd
 from openai import OpenAI
+# --- Session state (must be BEFORE widgets that use these keys) ---
+if "form_id" not in st.session_state:
+    st.session_state["form_id"] = 0
+
+if "last_result" not in st.session_state:
+    st.session_state["last_result"] = ""
 MANUAL_CSV = os.path.join(os.path.dirname(__file__), "data", "manual_library.csv")
 
 
@@ -94,16 +100,19 @@ st.subheader("Manual Search")
 category = st.selectbox(
     "Category (optional)",
     ["All"] + sorted(manual_db["category"].dropna().unique().tolist())
+    key="filter_category"
 )
 
 manufacturer = st.selectbox(
     "Manufacturer (optional)",
     ["All"] + sorted(manual_db["manufacturer"].dropna().unique().tolist())
+    fey="filter_manufacturer"
 )
 
 model = st.selectbox(
     "Model (optional)",
     ["All"] + sorted(manual_db["model"].dropna().unique().tolist())
+    key="filter_model"
 )
 
 # Apply filters
@@ -124,12 +133,7 @@ if q:
 
     st.caption(f"Matches: {len(hits)}")
     st.dataframe(hits, use_container_width=True)
-# --- Session state (must be BEFORE widgets that use these keys) ---
-if "form_id" not in st.session_state:
-    st.session_state["form_id"] = 0
 
-if "last_result" not in st.session_state:
-    st.session_state["last_result"] = ""
 # --- Alarm code (optional) ---
 machine_model = st.text_input(
     "Machine / Control Model (optional)",
