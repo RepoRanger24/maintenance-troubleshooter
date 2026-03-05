@@ -99,19 +99,19 @@ st.subheader("Manual Search")
 # Filters (optional)
 category = st.selectbox(
     "Category (optional)",
-    ["All"] + sorted(manual_db["category"].dropna().unique().tolist())
+    ["All"] + sorted(manual_db["category"].dropna().unique().tolist()),
     key="filter_category"
 )
 
 manufacturer = st.selectbox(
     "Manufacturer (optional)",
-    ["All"] + sorted(manual_db["manufacturer"].dropna().unique().tolist())
+    ["All"] + sorted(manual_db["manufacturer"].dropna().unique().tolist()),
     fey="filter_manufacturer"
 )
 
 model = st.selectbox(
     "Model (optional)",
-    ["All"] + sorted(manual_db["model"].dropna().unique().tolist())
+    ["All"] + sorted(manual_db["model"].dropna().unique().tolist()),
     key="filter_model"
 )
 
