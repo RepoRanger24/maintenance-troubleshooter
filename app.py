@@ -106,7 +106,7 @@ category = st.selectbox(
 manufacturer = st.selectbox(
     "Manufacturer (optional)",
     ["All"] + sorted(manual_db["manufacturer"].dropna().unique().tolist()),
-    fey="filter_manufacturer"
+    key="filter_manufacturer"
 )
 
 model = st.selectbox(
