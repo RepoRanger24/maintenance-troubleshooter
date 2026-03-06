@@ -13,7 +13,7 @@ GT326E,Barloader,Barloader,lathe not restarting after feed,AL011,"r2 chuck signa
 Tryton 112,Barloader,Barloader,bar not detected,SQ5,"sq5 sensor bar detect"
 
 Tryton 112,Barloader,Barloader,barloader not starting,Fanuc Interface,"cycle start interface fanuc"
-GT326E,Barloader,Barloader,Pusher in wrong position,No alarm,"gt326e pusher wrong position home"
+GT326E,Barloader,Barloader,Pusher in wrong position,No alarm,"pusher wrong position feeder stuck barloader home"
 GT326E,Barloader,Barloader,Remnant too long between lathe and feeder,No alarm,"gt326e remnant too long barstock between lathe feeder"
 GT326E,Barloader,Barloader,Movement not allowed with chuck closed,No alarm,"gt326e chuck closed movement invalid"
 GT326E,Barloader,Barloader,Bar feeder will not start in AUTO mode,No alarm,"gt326e auto start chuck open interface00"
