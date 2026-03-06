@@ -141,14 +141,33 @@ if model != "All":
     filtered = filtered[filtered["model"] == model]
 
 q = st.text_input("Search manuals (example: SQ5, air pressure, barloader fault)", key="manual_search")
-if q:
+hits = pd.DataFrame()
+
+manual_query = q.strip()
+
+if not manual_query:
+    auto_parts = []
+
+    if machine_model.strip():
+        auto_parts.append(machine_model.strip())
+
+    if alarm_code.strip():
+        auto_parts.append(alarm_code.strip())
+
+    if problem.strip():
+        auto_parts.append(problem.strip())
+
+    manual_query = " ".join(auto_parts)
+
+if manual_query:
     cols = list(filtered.columns)
     haystack = filtered[cols].astype(str).agg(" | ".join, axis=1)
 
-    hits = filtered[haystack.str.contains(q, case=False, na=False)].copy()
+    hits = filtered[haystack.str.contains(manual_query, case=False, na=False)].copy()
 
-    st.caption(f"Matches: {len(hits)}")
-    st.dataframe(hits, use_container_width=True)
+    if q.strip():
+        st.caption(f"Matches: {len(hits)}")
+        st.dataframe(hits, use_container_width=True)
 
 # --- Alarm code (optional) ---
 machine_model = st.text_input(
