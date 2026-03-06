@@ -255,12 +255,6 @@ if reset_clicked:
     st.rerun()
 
 if troubleshoot_clicked:
-    if not api_key:
-        st.error("Missing OPENAI_API_KEY in Streamlit Secrets.")
-        st.stop()
-
-    client = OpenAI(api_key=api_key)
-
     user_input = ""
 
     if machine_model.strip():
@@ -272,30 +266,54 @@ if troubleshoot_clicked:
     if problem.strip():
         user_input += f"Problem description: {problem.strip()}\n"
 
-    if not manual_hits.empty:
-        user_input += "\nManual library matches:\n"
-        user_input += manual_hits.head(5).to_string(index=False)
+    if api_key:
+        client = OpenAI(api_key=api_key)
 
-    if not symptom_hits.empty:
-        user_input += "\n\nSymptom library matches:\n"
-        user_input += symptom_hits.head(5).to_string(index=False)
+        if not manual_hits.empty:
+            user_input += "\nManual library matches:\n"
+            user_input += manual_hits.head(5).to_string(index=False)
 
-    with st.spinner("Thinking like a senior tech..."):
-        resp = client.responses.create(
-            model="gpt-5-mini",
-            input=[
-                {
-                    "role": "system",
-                    "content": PROMPT_V2 + (DEEP_ADDON if mode == "Deep" else "")
-                },
-                {
-                    "role": "user",
-                    "content": user_input.strip()
-                },
-            ],
-        )
+        if not symptom_hits.empty:
+            user_input += "\n\nSymptom library matches:\n"
+            user_input += symptom_hits.head(5).to_string(index=False)
 
-    st.session_state["last_result"] = resp.output_text
+        with st.spinner("Thinking like a senior tech..."):
+            resp = client.responses.create(
+                model="gpt-5-mini",
+                input=[
+                    {
+                        "role": "system",
+                        "content": PROMPT_V2 + (DEEP_ADDON if mode == "Deep" else "")
+                    },
+                    {
+                        "role": "user",
+                        "content": user_input.strip()
+                    },
+                ],
+            )
+
+        st.session_state["last_result"] = resp.output_text
+
+    else:
+        lines = []
+
+        if not manual_hits.empty:
+            row = manual_hits.iloc[0]
+            lines.append(f"Manual match: {row.get('model', '')} - {row.get('alarm_code', '')}")
+            lines.append(f"Symptom: {row.get('symptom', '')}")
+            lines.append(f"Likely causes: {row.get('causes', '')}")
+            if "fix" in row and str(row.get("fix", "")).strip():
+                lines.append(f"Suggested fix: {row.get('fix', '')}")
+
+        if not symptom_hits.empty:
+            srow = symptom_hits.iloc[0]
+            lines.append(f"Symptom library match: {srow.get('symptom', '')}")
+            lines.append(f"Likely alarms: {srow.get('likely_alarms', '')}")
+
+        if not lines:
+            lines.append("No matching records found in the manual or symptom libraries.")
+
+        st.session_state["last_result"] = "\n".join(lines)
 
 # -----------------------------
 # Show result
