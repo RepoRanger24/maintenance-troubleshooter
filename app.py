@@ -90,6 +90,22 @@ Rules:
 st.set_page_config(page_title="Maintenance Troubleshooter", page_icon="🔧")
 st.title("🔧 Maintenance Troubleshooter")
 st.caption("Type a problem. Get a fast troubleshooting plan.")
+st.info("""
+Best for:
+• CNC machine alarms
+• Barloader faults
+• Chip conveyor problems
+
+How to use:
+1. Enter machine/control if known
+2. Enter alarm code OR describe the problem
+3. Click Troubleshoot
+
+Tips:
+• Alarm codes give the best results
+• Use Manual Search to find machine documentation
+• Use Deep Mode for complex issues
+""")
 mode = st.radio("Mode", ["Quick", "Deep"], horizontal=True)
 
 # ---- Manual Library Search ----
