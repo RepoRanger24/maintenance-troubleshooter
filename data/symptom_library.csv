@@ -13,3 +13,12 @@ GT326E,Barloader,Barloader,lathe not restarting after feed,AL011,"r2 chuck signa
 Tryton 112,Barloader,Barloader,bar not detected,SQ5,"sq5 sensor bar detect"
 
 Tryton 112,Barloader,Barloader,barloader not starting,Fanuc Interface,"cycle start interface fanuc"
+GT326E,Barloader,Barloader,Pusher in wrong position,No alarm,"Manually return pusher to home position","gt326e pusher wrong position home"
+GT326E,Barloader,Barloader,Remnant too long between lathe and feeder,No alarm,"Manually remove remnant barstock","gt326e remnant too long barstock between lathe feeder"
+GT326E,Barloader,Barloader,Movement not allowed with chuck closed,No alarm,"Open the lathe chuck; verify INTERFACE00 setup","gt326e chuck closed movement invalid"
+GT326E,Barloader,Barloader,Bar feeder will not start in AUTO mode,No alarm,"Close the lathe chuck; verify INTERFACE00 setup matches chuck signal","gt326e auto start chuck open interface00"
+GT326E,Barloader,Barloader,Lathe door open detected,No alarm,"Close the lathe door to allow bar feeder operation","gt326e lathe door open safety"
+GT326E,Barloader,Barloader,Main access cover open in manual mode,No alarm,"Close the main access cover before operation","gt326e cover open manual mode"
+GT326E,Barloader,Barloader,Bar feeder cannot start AUTO when guiding channel open,No alarm,"Open the lathe chuck; verify INTERFACE00 configuration","gt326e guiding channel open start failure"
+GT326E,Barloader,Barloader,Bar measuring stop not ready,No alarm,"Press channel OPEN to reset measuring stop system","gt326e bar measuring stop sq1 not ready"
+GT326E,Barloader,Barloader,Lathe in manual mode,No alarm,"Switch lathe to AUTO; Verify Interface24 automatic signal; Check Interface45 AUTO signal setup","gt326e lathe manual mode interface24 a2"
