@@ -1,5 +1,5 @@
-id,category,manufacturer,model,section,alarm_code,plc_input,symptom,causes,fix,keywords
+id,category,manufacturer,model,section,alarm_code,plc_input,symptom,causes,fix,keywords,machine_area
 
-tryton112_sq5,Barloader,LNS,Tryton 112,Sensors,SQ5,"Bar position sensor","Bar not detected","SQ5 misaligned; Sensor dirty; Wiring loose","Inspect SQ5 sensor alignment and wiring","bar feeder sq5 sensor bar detect"
+tryton112_sq5,Barloader,LNS,Tryton 112,Sensors,SQ5,"Bar position sensor","Bar not detected","SQ5 misaligned; Sensor dirty; Wiring loose","Inspect SQ5 sensor alignment and wiring","bar feeder sq5 sensor bar detect",Barloader
 
-tryton112_interface,Barloader,LNS,Tryton 112,Interface,Fanuc Interface,"Cycle Start","Barloader not starting with machine","Interface signal missing; Parameter mismatch","Check Fanuc interface wiring and machine start signal","bar feeder interface cycle start signal"
+tryton112_interface,Barloader,LNS,Tryton 112,Interface,Fanuc Interface,"Cycle Start","Barloader not starting with machine","Interface signal missing; Parameter mismatch","Check Fanuc interface wiring and machine start signal","bar feeder interface cycle start signal",Barloader
