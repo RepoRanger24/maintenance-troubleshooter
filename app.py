@@ -141,7 +141,7 @@ if q:
     hits = filtered[haystack.str.contains(q, case=False, na=False)].copy()
 
     st.caption(f"Matches: {len(hits)}")
-   st.dataframe(hits, use_container_width=True)
+    st.dataframe(hits, use_container_width=True)
 
 # --- Alarm code (optional) ---
 machine_model = st.text_input(
