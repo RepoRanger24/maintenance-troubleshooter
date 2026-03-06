@@ -125,6 +125,8 @@ if model != "All":
     filtered = filtered[filtered["model"] == model]
 
 q = st.text_input("Search manuals (example: SQ5, air pressure, barloader fault)", key="manual_search")
+hits = pd.DataFrame()
+
 if q:
     cols = list(filtered.columns)
     haystack = filtered[cols].astype(str).agg(" | ".join, axis=1)
@@ -133,6 +135,13 @@ if q:
 
     st.caption(f"Matches: {len(hits)}")
     st.dataframe(hits, use_container_width=True)
+    cols = list(filtered.columns)
+    haystack = filtered[cols].astype(str).agg(" | ".join, axis=1)
+
+    hits = filtered[haystack.str.contains(q, case=False, na=False)].copy()
+
+    st.caption(f"Matches: {len(hits)}")
+    st.dataframe(hits, use_container_width=Tr
 
 # --- Alarm code (optional) ---
 machine_model = st.text_input(
