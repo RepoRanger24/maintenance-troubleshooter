@@ -222,14 +222,24 @@ if troubleshoot_clicked:
         st.stop()
 
     with st.spinner("Thinking like a senior tech..."):
-        resp = client.responses.create(
-            model="gpt-5-mini",
-            input=[
-             {"role": "system", "content": PROMPT_V2 + (DEEP_ADDON if mode == "Deep" else "")},  
-                {"role": "user", "content": user_input.strip()},
-            ],
-        )
+    manual_context = ""
 
+if not hits.empty:
+    manual_context = "\nRelevant manual data:\n" + hits.to_string(index=False)
+
+resp = client.responses.create(
+    model="gpt-5-mini",
+    input=[
+        {
+            "role": "system",
+            "content": PROMPT_V2 + (DEEP_ADDON if mode == "Deep" else "")
+        },
+        {
+            "role": "user",
+            "content": manual_context + "\n\n" + user_input.strip()
+        },
+    ],
+)  
     # Save result to session memory
     st.session_state["last_result"] = resp.output_text
 
