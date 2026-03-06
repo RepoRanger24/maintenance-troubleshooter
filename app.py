@@ -2,24 +2,41 @@ import os
 import streamlit as st
 import pandas as pd
 from openai import OpenAI
-# --- Session state (must be BEFORE widgets that use these keys) ---
+
+# -----------------------------
+# Session state
+# -----------------------------
 if "form_id" not in st.session_state:
     st.session_state["form_id"] = 0
 
 if "last_result" not in st.session_state:
     st.session_state["last_result"] = ""
-MANUAL_CSV = os.path.join(os.path.dirname(__file__), "data", "manual_library.csv")
 
+# -----------------------------
+# File paths
+# -----------------------------
+BASE_DIR = os.path.dirname(__file__)
+MANUAL_CSV = os.path.join(BASE_DIR, "data", "manual_library.csv")
+SYMPTOM_CSV = os.path.join(BASE_DIR, "data", "symptom_library.csv")
 
-
+# -----------------------------
+# Load CSVs
+# -----------------------------
 try:
-    manual_db = pd.read_csv(MANUAL_CSV)
-    
+    manual_db = pd.read_csv(MANUAL_CSV).fillna("")
 except Exception as e:
     st.error(f"Failed to load manual CSV: {e}")
     manual_db = pd.DataFrame()
 
-# -------- SHORTER PROMPT --------
+try:
+    symptom_db = pd.read_csv(SYMPTOM_CSV).fillna("")
+except Exception as e:
+    st.error(f"Failed to load symptom CSV: {e}")
+    symptom_db = pd.DataFrame()
+
+# -----------------------------
+# Prompt
+# -----------------------------
 PROMPT_V2 = """You are an industrial maintenance troubleshooting assistant for shop-floor technicians.
 Your job is to produce fast, practical isolation steps and likely causes.
 
@@ -86,10 +103,14 @@ Rules:
 - Do not add diagnostic questions.
 - No safety notes unless requested.
 """
-# -------- PAGE UI --------
+
+# -----------------------------
+# Page UI
+# -----------------------------
 st.set_page_config(page_title="Maintenance Troubleshooter", page_icon="🔧")
 st.title("🔧 Maintenance Troubleshooter")
 st.caption("Type a problem. Get a fast troubleshooting plan.")
+
 st.info("""
 Best for:
 • CNC machine alarms
@@ -100,87 +121,25 @@ How to use:
 1. Enter machine/control if known
 2. Enter alarm code OR describe the problem
 3. Click Troubleshoot
-
-Tips:
-• Alarm codes give the best results
-• Use Manual Search to find machine documentation
-• Use Deep Mode for complex issues
 """)
+
 mode = st.radio("Mode", ["Quick", "Deep"], horizontal=True)
 
-# ---- Manual Library Search ----
-st.subheader("Manual Search")
-
-
-# Filters (optional)
-category = st.selectbox(
-    "Category (optional)",
-    ["All"] + sorted(manual_db["category"].dropna().unique().tolist()),
-    key="filter_category"
-)
-
-manufacturer = st.selectbox(
-    "Manufacturer (optional)",
-    ["All"] + sorted(manual_db["manufacturer"].dropna().unique().tolist()),
-    key="filter_manufacturer"
-)
-
-model = st.selectbox(
-    "Model (optional)",
-    ["All"] + sorted(manual_db["model"].dropna().unique().tolist()),
-    key="filter_model"
-)
-
-# Apply filters
-filtered = manual_db.copy()
-if category != "All":
-    filtered = filtered[filtered["category"] == category]
-if manufacturer != "All":
-    filtered = filtered[filtered["manufacturer"] == manufacturer]
-if model != "All":
-    filtered = filtered[filtered["model"] == model]
-
-q = st.text_input("Search manuals (example: SQ5, air pressure, barloader fault)", key="manual_search")
-hits = pd.DataFrame()
-
-manual_query = q.strip()
-
-if not manual_query:
-    auto_parts = []
-
-    if machine_model.strip():
-        auto_parts.append(machine_model.strip())
-
-    if alarm_code.strip():
-        auto_parts.append(alarm_code.strip())
-
-    if problem.strip():
-        auto_parts.append(problem.strip())
-
-    manual_query = " ".join(auto_parts)
-
-if manual_query:
-    cols = list(filtered.columns)
-    haystack = filtered[cols].astype(str).agg(" | ".join, axis=1)
-
-    hits = filtered[haystack.str.contains(manual_query, case=False, na=False)].copy()
-
-    if q.strip():
-        st.caption(f"Matches: {len(hits)}")
-        st.dataframe(hits, use_container_width=True)
-
-# --- Alarm code (optional) ---
+# -----------------------------
+# Inputs first
+# -----------------------------
 machine_model = st.text_input(
     "Machine / Control Model (optional)",
     key=f"machine_model_{st.session_state['form_id']}",
     placeholder="Example: Fanuc 31i, Haas VF2, Okuma OSP, Siemens 840D..."
 )
+
 alarm_code = st.text_input(
     "Alarm code (optional)",
     key=f"alarm_code_{st.session_state['form_id']}",
     placeholder="Example: FANUC 401, SV0407, DTERR, OC, etc."
 )
-# --- Textbox ---
+
 problem = st.text_area(
     "Describe the problem",
     key=f"problem_text_{st.session_state['form_id']}",
@@ -188,13 +147,86 @@ problem = st.text_area(
     placeholder="Example: Motor trips overload after 15 minutes on a pump. 480V 3-phase."
 )
 
+st.divider()
 
+# -----------------------------
+# Manual Search
+# -----------------------------
+st.subheader("Manual Search")
+
+if not manual_db.empty and "category" in manual_db.columns:
+    category_options = ["All"] + sorted(manual_db["category"].astype(str).replace("", pd.NA).dropna().unique().tolist())
+else:
+    category_options = ["All"]
+
+if not manual_db.empty and "manufacturer" in manual_db.columns:
+    manufacturer_options = ["All"] + sorted(manual_db["manufacturer"].astype(str).replace("", pd.NA).dropna().unique().tolist())
+else:
+    manufacturer_options = ["All"]
+
+if not manual_db.empty and "model" in manual_db.columns:
+    model_options = ["All"] + sorted(manual_db["model"].astype(str).replace("", pd.NA).dropna().unique().tolist())
+else:
+    model_options = ["All"]
+
+category = st.selectbox("Category (optional)", category_options, key="filter_category")
+manufacturer = st.selectbox("Manufacturer (optional)", manufacturer_options, key="filter_manufacturer")
+model = st.selectbox("Model (optional)", model_options, key="filter_model")
+
+filtered = manual_db.copy()
+
+if not filtered.empty and category != "All" and "category" in filtered.columns:
+    filtered = filtered[filtered["category"] == category]
+
+if not filtered.empty and manufacturer != "All" and "manufacturer" in filtered.columns:
+    filtered = filtered[filtered["manufacturer"] == manufacturer]
+
+if not filtered.empty and model != "All" and "model" in filtered.columns:
+    filtered = filtered[filtered["model"] == model]
+
+q = st.text_input(
+    "Search manuals (example: SQ5, air pressure, barloader fault)",
+    key="manual_search"
+)
+
+manual_query = q.strip()
+if not manual_query:
+    parts = [machine_model.strip(), alarm_code.strip(), problem.strip()]
+    manual_query = " ".join([p for p in parts if p])
+
+# Manual matches
+manual_hits = pd.DataFrame()
+if manual_query and not filtered.empty:
+    haystack = filtered.astype(str).agg(" | ".join, axis=1)
+    manual_hits = filtered[haystack.str.contains(manual_query, case=False, na=False)].copy()
+
+st.subheader("Manual Matches")
+if not manual_hits.empty:
+    st.caption(f"Matches: {len(manual_hits)}")
+    st.dataframe(manual_hits, use_container_width=True)
+else:
+    st.info("No manual matches found.")
+
+# Symptom matches
+symptom_hits = pd.DataFrame()
+if manual_query and not symptom_db.empty:
+    symptom_haystack = symptom_db.astype(str).agg(" | ".join, axis=1)
+    symptom_hits = symptom_db[symptom_haystack.str.contains(manual_query, case=False, na=False)].copy()
+
+st.subheader("Symptom Matches")
+if not symptom_hits.empty:
+    st.caption(f"Matches: {len(symptom_hits)}")
+    st.dataframe(symptom_hits, use_container_width=True)
+else:
+    st.info("No symptom matches found.")
 
 st.divider()
 
-# -------- API KEY --------
+# -----------------------------
+# Troubleshoot button logic
+# -----------------------------
 api_key = os.getenv("OPENAI_API_KEY", "")
-# -------- BUTTON LOGIC --------
+
 has_input = any([
     machine_model.strip(),
     alarm_code.strip(),
@@ -217,13 +249,11 @@ with col2:
         key=f"reset_{st.session_state['form_id']}",
     )
 
-  
-# --- Reset behavior ---
 if reset_clicked:
     st.session_state["last_result"] = ""
     st.session_state["form_id"] += 1
     st.rerun()
-  # --- Run troubleshooting only when clicked ---
+
 if troubleshoot_clicked:
     if not api_key:
         st.error("Missing OPENAI_API_KEY in Streamlit Secrets.")
@@ -231,7 +261,6 @@ if troubleshoot_clicked:
 
     client = OpenAI(api_key=api_key)
 
-    # --- Combine ALL user inputs ---
     user_input = ""
 
     if machine_model.strip():
@@ -243,24 +272,34 @@ if troubleshoot_clicked:
     if problem.strip():
         user_input += f"Problem description: {problem.strip()}\n"
 
-    if not user_input.strip():
-        st.warning("Enter a machine model, alarm code, or problem description.")
-        st.stop()
+    if not manual_hits.empty:
+        user_input += "\nManual library matches:\n"
+        user_input += manual_hits.head(5).to_string(index=False)
+
+    if not symptom_hits.empty:
+        user_input += "\n\nSymptom library matches:\n"
+        user_input += symptom_hits.head(5).to_string(index=False)
 
     with st.spinner("Thinking like a senior tech..."):
         resp = client.responses.create(
             model="gpt-5-mini",
             input=[
-             {"role": "system", "content": PROMPT_V2 + (DEEP_ADDON if mode == "Deep" else "")},  
-                {"role": "user", "content": user_input.strip()},
+                {
+                    "role": "system",
+                    "content": PROMPT_V2 + (DEEP_ADDON if mode == "Deep" else "")
+                },
+                {
+                    "role": "user",
+                    "content": user_input.strip()
+                },
             ],
         )
 
-    # Save result to session memory
     st.session_state["last_result"] = resp.output_text
 
-    
-# --- Display result if we have one ---
+# -----------------------------
+# Show result
+# -----------------------------
 if st.session_state["last_result"]:
     st.subheader("Result")
     st.write(st.session_state["last_result"])
