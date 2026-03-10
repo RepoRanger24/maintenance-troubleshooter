@@ -172,24 +172,29 @@ if not filtered_manual.empty and model != "All" and "model" in filtered_manual.c
 
 # -----------------------------
 # Search libraries
+# ----------------------------- 
+# -----------------------------
+# Search libraries
 # -----------------------------
 manual_hits = pd.DataFrame()
 symptom_hits = pd.DataFrame()
 
 if search_query:
-    
     keywords = [word.strip() for word in search_query.lower().split() if word.strip()]
-    
+
     if not filtered_manual.empty:
         manual_haystack = filtered_manual.astype(str).agg(" | ".join, axis=1).str.lower()
-        manual_mask = manual_haystack.apply(lambda row: any(word in row for word in keywords))
-        manual_hits = filtered_manual[manual_mask].copy()
-       
+        manual_scores = manual_haystack.apply(lambda row: sum(word in row for word in keywords))
+        manual_hits = filtered_manual[manual_scores > 0].copy()
+        manual_hits["match_score"] = manual_scores[manual_scores > 0].values
+        manual_hits = manual_hits.sort_values(by="match_score", ascending=False)
+
     if not symptom_db.empty:
         symptom_haystack = symptom_db.astype(str).agg(" | ".join, axis=1).str.lower()
-        symptom_mask = symptom_haystack.apply(lambda row: any(word in row for word in keywords))
-        symptom_hits = symptom_db[symptom_mask].copy()
-        
+        symptom_scores = symptom_haystack.apply(lambda row: sum(word in row for word in keywords))
+        symptom_hits = symptom_db[symptom_scores > 0].copy()
+        symptom_hits["match_score"] = symptom_scores[symptom_scores > 0].values
+        symptom_hits = symptom_hits.sort_values(by="match_score", ascending=False)        
 # -----------------------------
 # Buttons
 # -----------------------------
@@ -264,13 +269,31 @@ if troubleshoot_clicked:
     else:
         lines = []
 
-        if not symptom_hits.empty:
-            lines.append("Top symptom matches:")
-            for i, (_, row) in enumerate(symptom_hits.head(3).iterrows(), start=1):
-                symptom = row.get("symptom", "")
-                alarms = row.get("likely_alarms", "")
-                lines.append(f"{i}. {symptom} — Likely alarms: {alarms}")
+        )
+if not symptom_hits.empty:
+    top_row = symptom_hits.iloc[0]
+    top_symptom = top_row.get("symptom", "")
+    top_alarms = top_row.get("likely_alarms", "")
+    top_score = top_row.get("match_score", 0)
 
+    if top_score >= 3:
+        confidence = "High"
+    elif top_score == 2:
+        confidence = "Medium"
+    else:
+        confidence = "Low"
+
+    lines.append(f"Most likely problem: {top_symptom}")
+    lines.append(f"Confidence: {confidence}")
+    lines.append(f"Likely alarms: {top_alarms}")
+    lines.append("")
+    lines.append("Top symptom matches:")
+
+    for i, (_, row) in enumerate(symptom_hits.head(3).iterrows(), start=1):
+        symptom = row.get("symptom", "")
+        alarms = row.get("likely_alarms", "")
+        score = row.get("match_score", 0)
+        lines.append(f"{i}. {symptom} — Likely alarms: {alarms} — Score: {score}")
         if not manual_hits.empty:
             lines.append("")
             lines.append("Top manual matches:")
