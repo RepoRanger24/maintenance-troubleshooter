@@ -266,7 +266,7 @@ if troubleshoot_clicked:
 
         st.session_state["last_result"] = resp.output_text
           st.session_state["last_result"] = "\n".join(lines)
-    else:
+      else:
         lines = []
 
         if not symptom_hits.empty:
@@ -310,7 +310,7 @@ if troubleshoot_clicked:
         if not lines:
             lines.append("No matching records found in the manual or symptom libraries.")
 
-        st.session_state["last_result"] = "\n".join(lines)            
+        st.session_state["last_result"] = "\n".join(lines)        
 # -----------------------------
 # Show result
 # -----------------------------
