@@ -256,28 +256,33 @@ if troubleshoot_clicked:
             )
 
         st.session_state["last_result"] = resp.output_text
-
+ st.session_state["last_result"] = "\n".join(lines)
     else:
         lines = []
 
-        if not manual_hits.empty:
-            row = manual_hits.iloc[0]
-            lines.append(f"Manual match: {row.get('model', '')} - {row.get('alarm_code', '')}")
-            lines.append(f"Symptom: {row.get('symptom', '')}")
-            lines.append(f"Likely causes: {row.get('causes', '')}")
-            if "fix" in row.index and str(row.get("fix", "")).strip():
-                lines.append(f"Suggested fix: {row.get('fix', '')}")
-
         if not symptom_hits.empty:
-            srow = symptom_hits.iloc[0]
-            lines.append(f"Symptom library match: {srow.get('symptom', '')}")
-            lines.append(f"Likely alarms: {srow.get('likely_alarms', '')}")
+            lines.append("Top symptom matches:")
+            for i, (_, row) in enumerate(symptom_hits.head(3).iterrows(), start=1):
+                symptom = row.get("symptom", "")
+                alarms = row.get("likely_alarms", "")
+                lines.append(f"{i}. {symptom} — Likely alarms: {alarms}")
+
+        if not manual_hits.empty:
+            lines.append("")
+            lines.append("Top manual matches:")
+            for i, (_, row) in enumerate(manual_hits.head(3).iterrows(), start=1):
+                model = row.get("model", "")
+                alarm = row.get("alarm_code", "")
+                symptom = row.get("symptom", "")
+                fix = row.get("fix", "")
+                lines.append(f"{i}. {model} {alarm} — {symptom}")
+                if str(fix).strip():
+                    lines.append(f"   Fix: {fix}")
 
         if not lines:
             lines.append("No matching records found in the manual or symptom libraries.")
 
         st.session_state["last_result"] = "\n".join(lines)
-
 # -----------------------------
 # Show result
 # -----------------------------
