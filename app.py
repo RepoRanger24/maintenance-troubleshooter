@@ -152,7 +152,7 @@ st.divider()
 query_parts = [
     problem.strip(),
     alarm_code.strip(),
-    machine_model.strip()
+    machine_model.strip(),
 ]
 search_query = " ".join([p for p in query_parts if p]).strip()
 
@@ -172,9 +172,6 @@ if not filtered_manual.empty and model != "All" and "model" in filtered_manual.c
 
 # -----------------------------
 # Search libraries
-# ----------------------------- 
-# -----------------------------
-# Search libraries
 # -----------------------------
 manual_hits = pd.DataFrame()
 symptom_hits = pd.DataFrame()
@@ -184,21 +181,27 @@ if search_query:
 
     if not filtered_manual.empty:
         manual_haystack = filtered_manual.astype(str).agg(" | ".join, axis=1).str.lower()
-        manual_scores = manual_haystack.apply(lambda row: sum(word in row for word in keywords))
+        manual_scores = manual_haystack.apply(
+            lambda row: sum(1 for word in keywords if word in row)
+        )
         manual_hits = filtered_manual[manual_scores > 0].copy()
-        manual_hits["match_score"] = manual_scores[manual_scores > 0].values
-        manual_hits = manual_hits.sort_values(by="match_score", ascending=False)
+        if not manual_hits.empty:
+            manual_hits["match_score"] = manual_scores[manual_scores > 0].values
+            manual_hits = manual_hits.sort_values(by="match_score", ascending=False)
 
     if not symptom_db.empty:
         symptom_haystack = symptom_db.astype(str).agg(" | ".join, axis=1).str.lower()
-        symptom_scores = symptom_haystack.apply(lambda row: sum(word in row for word in keywords))
+        symptom_scores = symptom_haystack.apply(
+            lambda row: sum(1 for word in keywords if word in row)
+        )
         symptom_hits = symptom_db[symptom_scores > 0].copy()
-        symptom_hits["match_score"] = symptom_scores[symptom_scores > 0].values
-        symptom_hits = symptom_hits.sort_values(by="match_score", ascending=False)        
+        if not symptom_hits.empty:
+            symptom_hits["match_score"] = symptom_scores[symptom_scores > 0].values
+            symptom_hits = symptom_hits.sort_values(by="match_score", ascending=False)
+
 # -----------------------------
 # Buttons
 # -----------------------------
-has_input = bool(search_query)
 api_key = os.getenv("OPENAI_API_KEY", "")
 
 col1, col2 = st.columns([1, 1])
@@ -207,7 +210,6 @@ with col1:
     troubleshoot_clicked = st.button(
         "Troubleshoot",
         type="primary",
-        disabled=False,
         key=f"troubleshoot_{st.session_state['form_id']}",
     )
 
@@ -229,6 +231,7 @@ if troubleshoot_clicked:
     if not search_query:
         st.warning("Please enter a problem description, alarm code, or machine model.")
         st.stop()
+
     user_input = ""
 
     if machine_model.strip():
@@ -265,54 +268,55 @@ if troubleshoot_clicked:
             )
 
         st.session_state["last_result"] = resp.output_text
-          st.session_state["last_result"] = "\n".join(lines)
- else:
-    lines = []
 
-    if not symptom_hits.empty:
-        top_row = symptom_hits.iloc[0]
-        top_symptom = top_row.get("symptom", "")
-        top_alarms = top_row.get("likely_alarms", "")
-        top_score = top_row.get("match_score", 0)
+    else:
+        lines = []
 
-        if top_score >= 3:
-            confidence = "High"
-        elif top_score == 2:
-            confidence = "Medium"
-        else:
-            confidence = "Low"
+        if not symptom_hits.empty:
+            top_row = symptom_hits.iloc[0]
+            top_symptom = top_row.get("symptom", "")
+            top_alarms = top_row.get("likely_alarms", "")
+            top_score = int(top_row.get("match_score", 0))
 
-        lines.append(f"Most likely problem: {top_symptom}")
-        lines.append(f"Confidence: {confidence}")
-        lines.append(f"Likely alarms: {top_alarms}")
-        lines.append("")
-        lines.append("Top symptom matches:")
+            if top_score >= 3:
+                confidence = "High"
+            elif top_score == 2:
+                confidence = "Medium"
+            else:
+                confidence = "Low"
 
-        for i, (_, row) in enumerate(symptom_hits.head(3).iterrows(), start=1):
-            symptom = row.get("symptom", "")
-            alarms = row.get("likely_alarms", "")
-            score = row.get("match_score", 0)
-            lines.append(f"{i}. {symptom} — Likely alarms: {alarms} — Score: {score}")
+            lines.append(f"Most likely problem: {top_symptom}")
+            lines.append(f"Confidence: {confidence}")
+            lines.append(f"Likely alarms: {top_alarms}")
+            lines.append("")
+            lines.append("Top symptom matches:")
 
-    if not manual_hits.empty:
-        lines.append("")
-        lines.append("Top manual matches:")
+            for i, (_, row) in enumerate(symptom_hits.head(3).iterrows(), start=1):
+                symptom = row.get("symptom", "")
+                alarms = row.get("likely_alarms", "")
+                score = int(row.get("match_score", 0))
+                lines.append(f"{i}. {symptom} — Likely alarms: {alarms} — Score: {score}")
 
-        for i, (_, row) in enumerate(manual_hits.head(3).iterrows(), start=1):
-            model = row.get("model", "")
-            alarm = row.get("alarm_code", "")
-            symptom = row.get("symptom", "")
-            fix = row.get("fix", "")
+        if not manual_hits.empty:
+            lines.append("")
+            lines.append("Top manual matches:")
 
-            lines.append(f"{i}. {model} {alarm} — {symptom}")
+            for i, (_, row) in enumerate(manual_hits.head(3).iterrows(), start=1):
+                model_name = row.get("model", "")
+                alarm = row.get("alarm_code", "")
+                symptom = row.get("symptom", "")
+                fix = row.get("fix", "")
+                score = int(row.get("match_score", 0))
 
-            if str(fix).strip():
-                lines.append(f"   Fix: {fix}")
+                lines.append(f"{i}. {model_name} {alarm} — {symptom} — Score: {score}")
+                if str(fix).strip():
+                    lines.append(f"   Fix: {fix}")
 
-    if not lines:
-        lines.append("No matching records found in the manual or symptom libraries.")
+        if not lines:
+            lines.append("No matching records found in the manual or symptom libraries.")
 
-    st.session_state["last_result"] = "\n".join(lines)       
+        st.session_state["last_result"] = "\n".join(lines)
+
 # -----------------------------
 # Show result
 # -----------------------------
