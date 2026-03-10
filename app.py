@@ -256,7 +256,7 @@ if troubleshoot_clicked:
             )
 
         st.session_state["last_result"] = resp.output_text
- st.session_state["last_result"] = "\n".join(lines)
+        st.session_state["last_result"] = "\n".join(lines)
     else:
         lines = []
 
