@@ -200,8 +200,8 @@ col1, col2 = st.columns([1, 1])
 with col1:
     troubleshoot_clicked = st.button(
         "Troubleshoot",
-        type="primary" if has_input else "secondary",
-        disabled=not has_input,
+        type="primary",
+        disabled=False,
         key=f"troubleshoot_{st.session_state['form_id']}",
     )
 
@@ -220,6 +220,9 @@ if reset_clicked:
 # Troubleshoot
 # -----------------------------
 if troubleshoot_clicked:
+    if not search_query:
+        st.warning("Please enter a problem description, alarm code, or machine model.")
+        st.stop()
     user_input = ""
 
     if machine_model.strip():
