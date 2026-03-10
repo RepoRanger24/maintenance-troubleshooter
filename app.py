@@ -281,8 +281,8 @@ if troubleshoot_clicked:
 
         if not lines:
             lines.append("No matching records found in the manual or symptom libraries.")
-
         st.session_state["last_result"] = "\n".join(lines)
+        
 # -----------------------------
 # Show result
 # -----------------------------
