@@ -45,7 +45,7 @@ Global rules:
 - Never include a “Diagnostic questions” section.
 - Never include safety notes unless explicitly requested by the user.
 - If key info is missing, make ONE reasonable assumption and proceed.
-- Prefer checks that are quick and realistic (visual, gauge, isolate section, swap known-good, verify signals).
+- Prefer checks that are quick and realistic.
 
 If an alarm code is provided, use ONLY this format:
 
@@ -70,17 +70,10 @@ Fast checks:
 2) <1 line>
 3) <1 line>
 4) <1 line>
-
-Hard limits for QUICK MODE:
-- Total output must be 12 lines or fewer.
-- Causes must be 1 to 3 bullets (ranked).
-- Fast checks must be 2 to 4 steps.
 """
 
 DEEP_ADDON = """
-DEEP MODE (only when selected):
-Use this format:
-
+DEEP MODE:
 Meaning: <1-2 lines>
 Likely causes:
 - <cause> (High/Med/Low)
@@ -97,11 +90,6 @@ IF <condition> -> THEN <action>
 Common traps:
 - <short trap>
 - <short trap>
-
-Rules:
-- Keep it structured and concise.
-- Do not add diagnostic questions.
-- No safety notes unless requested.
 """
 
 # -----------------------------
@@ -109,129 +97,103 @@ Rules:
 # -----------------------------
 st.set_page_config(page_title="Maintenance Troubleshooter", page_icon="🔧")
 st.title("🔧 Maintenance Troubleshooter")
-st.caption("Type a problem. Get a fast troubleshooting plan.")
-
-st.info("""
-Best for:
-• CNC machine alarms
-• Barloader faults
-• Chip conveyor problems
-
-How to use:
-1. Enter machine/control if known
-2. Enter alarm code OR describe the problem
-3. Click Troubleshoot
-""")
+st.caption("Type a machine problem. Get a fast troubleshooting plan.")
 
 mode = st.radio("Mode", ["Quick", "Deep"], horizontal=True)
 
-# -----------------------------
-# Inputs first
-# -----------------------------
-machine_model = st.text_input(
-    "Machine / Control Model (optional)",
-    key=f"machine_model_{st.session_state['form_id']}",
-    placeholder="Example: Fanuc 31i, Haas VF2, Okuma OSP, Siemens 840D..."
+problem = st.text_area(
+    "Describe the problem",
+    key=f"problem_text_{st.session_state['form_id']}",
+    height=120,
+    placeholder="Examples: pusher stuck, remnant jam, SQ2 sensor, AL010, bar feeder won't start"
 )
 
 alarm_code = st.text_input(
     "Alarm code (optional)",
     key=f"alarm_code_{st.session_state['form_id']}",
-    placeholder="Example: FANUC 401, SV0407, DTERR, OC, etc."
+    placeholder="Example: AL05, SQ3, FANUC 401"
 )
 
-problem = st.text_area(
-    "Describe the problem",
-    key=f"problem_text_{st.session_state['form_id']}",
-    height=140,
-    placeholder="Example: Motor trips overload after 15 minutes on a pump. 480V 3-phase."
+machine_model = st.text_input(
+    "Machine / Control Model (optional)",
+    key=f"machine_model_{st.session_state['form_id']}",
+    placeholder="Example: GT 326-E, Fanuc 31i, Haas VF2"
 )
 
-st.divider()
-
-# -----------------------------
-# Manual Search
-# -----------------------------
-st.subheader("Manual Search")
-
-if not manual_db.empty and "category" in manual_db.columns:
-    category_options = ["All"] + sorted(manual_db["category"].astype(str).replace("", pd.NA).dropna().unique().tolist())
-else:
+with st.expander("Advanced filters (optional)"):
     category_options = ["All"]
-
-if not manual_db.empty and "manufacturer" in manual_db.columns:
-    manufacturer_options = ["All"] + sorted(manual_db["manufacturer"].astype(str).replace("", pd.NA).dropna().unique().tolist())
-else:
     manufacturer_options = ["All"]
-
-if not manual_db.empty and "model" in manual_db.columns:
-    model_options = ["All"] + sorted(manual_db["model"].astype(str).replace("", pd.NA).dropna().unique().tolist())
-else:
     model_options = ["All"]
 
-category = st.selectbox("Category (optional)", category_options, key="filter_category")
-manufacturer = st.selectbox("Manufacturer (optional)", manufacturer_options, key="filter_manufacturer")
-model = st.selectbox("Model (optional)", model_options, key="filter_model")
+    if not manual_db.empty and "category" in manual_db.columns:
+        category_options += sorted(
+            manual_db["category"].astype(str).replace("", pd.NA).dropna().unique().tolist()
+        )
 
-filtered = manual_db.copy()
+    if not manual_db.empty and "manufacturer" in manual_db.columns:
+        manufacturer_options += sorted(
+            manual_db["manufacturer"].astype(str).replace("", pd.NA).dropna().unique().tolist()
+        )
 
-if not filtered.empty and category != "All" and "category" in filtered.columns:
-    filtered = filtered[filtered["category"] == category]
+    if not manual_db.empty and "model" in manual_db.columns:
+        model_options += sorted(
+            manual_db["model"].astype(str).replace("", pd.NA).dropna().unique().tolist()
+        )
 
-if not filtered.empty and manufacturer != "All" and "manufacturer" in filtered.columns:
-    filtered = filtered[filtered["manufacturer"] == manufacturer]
-
-if not filtered.empty and model != "All" and "model" in filtered.columns:
-    filtered = filtered[filtered["model"] == model]
-
-q = st.text_input(
-    "Search manuals (example: SQ5, air pressure, barloader fault)",
-    key="manual_search"
-)
-
-manual_query = q.strip()
-if not manual_query:
-    parts = [machine_model.strip(), alarm_code.strip(), problem.strip()]
-    manual_query = " ".join([p for p in parts if p])
-
-# Manual matches
-manual_hits = pd.DataFrame()
-if manual_query and not filtered.empty:
-    haystack = filtered.astype(str).agg(" | ".join, axis=1)
-    manual_hits = filtered[haystack.str.contains(manual_query, case=False, na=False)].copy()
-
-st.subheader("Manual Matches")
-if not manual_hits.empty:
-    st.caption(f"Matches: {len(manual_hits)}")
-    st.dataframe(manual_hits, use_container_width=True)
-else:
-    st.info("No manual matches found.")
-
-# Symptom matches
-symptom_hits = pd.DataFrame()
-if manual_query and not symptom_db.empty:
-    symptom_haystack = symptom_db.astype(str).agg(" | ".join, axis=1)
-    symptom_hits = symptom_db[symptom_haystack.str.contains(manual_query, case=False, na=False)].copy()
-
-st.subheader("Symptom Matches")
-if not symptom_hits.empty:
-    st.caption(f"Matches: {len(symptom_hits)}")
-    st.dataframe(symptom_hits, use_container_width=True)
-else:
-    st.info("No symptom matches found.")
+    category = st.selectbox("Category", category_options, key="filter_category")
+    manufacturer = st.selectbox("Manufacturer", manufacturer_options, key="filter_manufacturer")
+    model = st.selectbox("Model", model_options, key="filter_model")
 
 st.divider()
 
 # -----------------------------
-# Troubleshoot button logic
+# Build one query
 # -----------------------------
-api_key = os.getenv("OPENAI_API_KEY", "")
-
-has_input = any([
-    machine_model.strip(),
+query_parts = [
+    problem.strip(),
     alarm_code.strip(),
-    problem.strip()
-])
+    machine_model.strip()
+]
+search_query = " ".join([p for p in query_parts if p]).strip()
+
+# -----------------------------
+# Apply filters
+# -----------------------------
+filtered_manual = manual_db.copy()
+
+if not filtered_manual.empty and category != "All" and "category" in filtered_manual.columns:
+    filtered_manual = filtered_manual[filtered_manual["category"] == category]
+
+if not filtered_manual.empty and manufacturer != "All" and "manufacturer" in filtered_manual.columns:
+    filtered_manual = filtered_manual[filtered_manual["manufacturer"] == manufacturer]
+
+if not filtered_manual.empty and model != "All" and "model" in filtered_manual.columns:
+    filtered_manual = filtered_manual[filtered_manual["model"] == model]
+
+# -----------------------------
+# Search libraries
+# -----------------------------
+manual_hits = pd.DataFrame()
+symptom_hits = pd.DataFrame()
+
+if search_query:
+    if not filtered_manual.empty:
+        manual_haystack = filtered_manual.astype(str).agg(" | ".join, axis=1)
+        manual_hits = filtered_manual[
+            manual_haystack.str.contains(search_query, case=False, na=False)
+        ].copy()
+
+    if not symptom_db.empty:
+        symptom_haystack = symptom_db.astype(str).agg(" | ".join, axis=1)
+        symptom_hits = symptom_db[
+            symptom_haystack.str.contains(search_query, case=False, na=False)
+        ].copy()
+
+# -----------------------------
+# Buttons
+# -----------------------------
+has_input = bool(search_query)
+api_key = os.getenv("OPENAI_API_KEY", "")
 
 col1, col2 = st.columns([1, 1])
 
@@ -254,15 +216,16 @@ if reset_clicked:
     st.session_state["form_id"] += 1
     st.rerun()
 
+# -----------------------------
+# Troubleshoot
+# -----------------------------
 if troubleshoot_clicked:
     user_input = ""
 
     if machine_model.strip():
         user_input += f"Machine/control: {machine_model.strip()}\n"
-
     if alarm_code.strip():
         user_input += f"Alarm code: {alarm_code.strip()}\n"
-
     if problem.strip():
         user_input += f"Problem description: {problem.strip()}\n"
 
@@ -302,7 +265,7 @@ if troubleshoot_clicked:
             lines.append(f"Manual match: {row.get('model', '')} - {row.get('alarm_code', '')}")
             lines.append(f"Symptom: {row.get('symptom', '')}")
             lines.append(f"Likely causes: {row.get('causes', '')}")
-            if "fix" in row and str(row.get("fix", "")).strip():
+            if "fix" in row.index and str(row.get("fix", "")).strip():
                 lines.append(f"Suggested fix: {row.get('fix', '')}")
 
         if not symptom_hits.empty:
@@ -328,3 +291,20 @@ if st.session_state["last_result"]:
         file_name="maintenance_troubleshooting_plan.txt",
         mime="text/plain",
     )
+
+# -----------------------------
+# Optional match view
+# -----------------------------
+if search_query:
+    with st.expander("Show search matches"):
+        st.subheader("Manual Matches")
+        if not manual_hits.empty:
+            st.dataframe(manual_hits, use_container_width=True)
+        else:
+            st.info("No manual matches found.")
+
+        st.subheader("Symptom Matches")
+        if not symptom_hits.empty:
+            st.dataframe(symptom_hits, use_container_width=True)
+        else:
+            st.info("No symptom matches found.")
