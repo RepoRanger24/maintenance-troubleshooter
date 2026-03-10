@@ -266,51 +266,53 @@ if troubleshoot_clicked:
 
         st.session_state["last_result"] = resp.output_text
           st.session_state["last_result"] = "\n".join(lines)
-      else:
-        lines = []
+ else:
+    lines = []
 
-        if not symptom_hits.empty:
-            top_row = symptom_hits.iloc[0]
-            top_symptom = top_row.get("symptom", "")
-            top_alarms = top_row.get("likely_alarms", "")
-            top_score = top_row.get("match_score", 0)
+    if not symptom_hits.empty:
+        top_row = symptom_hits.iloc[0]
+        top_symptom = top_row.get("symptom", "")
+        top_alarms = top_row.get("likely_alarms", "")
+        top_score = top_row.get("match_score", 0)
 
-            if top_score >= 3:
-                confidence = "High"
-            elif top_score == 2:
-                confidence = "Medium"
-            else:
-                confidence = "Low"
+        if top_score >= 3:
+            confidence = "High"
+        elif top_score == 2:
+            confidence = "Medium"
+        else:
+            confidence = "Low"
 
-            lines.append(f"Most likely problem: {top_symptom}")
-            lines.append(f"Confidence: {confidence}")
-            lines.append(f"Likely alarms: {top_alarms}")
-            lines.append("")
-            lines.append("Top symptom matches:")
+        lines.append(f"Most likely problem: {top_symptom}")
+        lines.append(f"Confidence: {confidence}")
+        lines.append(f"Likely alarms: {top_alarms}")
+        lines.append("")
+        lines.append("Top symptom matches:")
 
-            for i, (_, row) in enumerate(symptom_hits.head(3).iterrows(), start=1):
-                symptom = row.get("symptom", "")
-                alarms = row.get("likely_alarms", "")
-                score = row.get("match_score", 0)
-                lines.append(f"{i}. {symptom} — Likely alarms: {alarms} — Score: {score}")
+        for i, (_, row) in enumerate(symptom_hits.head(3).iterrows(), start=1):
+            symptom = row.get("symptom", "")
+            alarms = row.get("likely_alarms", "")
+            score = row.get("match_score", 0)
+            lines.append(f"{i}. {symptom} — Likely alarms: {alarms} — Score: {score}")
 
-        if not manual_hits.empty:
-            lines.append("")
-            lines.append("Top manual matches:")
-            for i, (_, row) in enumerate(manual_hits.head(3).iterrows(), start=1):
-                model = row.get("model", "")
-                alarm = row.get("alarm_code", "")
-                symptom = row.get("symptom", "")
-                fix = row.get("fix", "")
-                score = row.get("match_score", 0)
-                lines.append(f"{i}. {model} {alarm} — {symptom} — Score: {score}")
-                if str(fix).strip():
-                    lines.append(f"   Fix: {fix}")
+    if not manual_hits.empty:
+        lines.append("")
+        lines.append("Top manual matches:")
 
-        if not lines:
-            lines.append("No matching records found in the manual or symptom libraries.")
+        for i, (_, row) in enumerate(manual_hits.head(3).iterrows(), start=1):
+            model = row.get("model", "")
+            alarm = row.get("alarm_code", "")
+            symptom = row.get("symptom", "")
+            fix = row.get("fix", "")
 
-        st.session_state["last_result"] = "\n".join(lines)        
+            lines.append(f"{i}. {model} {alarm} — {symptom}")
+
+            if str(fix).strip():
+                lines.append(f"   Fix: {fix}")
+
+    if not lines:
+        lines.append("No matching records found in the manual or symptom libraries.")
+
+    st.session_state["last_result"] = "\n".join(lines)       
 # -----------------------------
 # Show result
 # -----------------------------
