@@ -269,8 +269,7 @@ if troubleshoot_clicked:
     else:
         lines = []
 
-        )
-if not symptom_hits.empty:
+        )if not symptom_hits.empty:
     top_row = symptom_hits.iloc[0]
     top_symptom = top_row.get("symptom", "")
     top_alarms = top_row.get("likely_alarms", "")
