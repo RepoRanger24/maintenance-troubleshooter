@@ -177,18 +177,19 @@ manual_hits = pd.DataFrame()
 symptom_hits = pd.DataFrame()
 
 if search_query:
+    st.write("Search query:", search_query)
     keywords = [word.strip() for word in search_query.lower().split() if word.strip()]
-
+    st.write("Keywords:", keywords)
     if not filtered_manual.empty:
         manual_haystack = filtered_manual.astype(str).agg(" | ".join, axis=1).str.lower()
         manual_mask = manual_haystack.apply(lambda row: any(word in row for word in keywords))
         manual_hits = filtered_manual[manual_mask].copy()
-
+        st.write("Manual matches found:", len(manual_hits))
     if not symptom_db.empty:
         symptom_haystack = symptom_db.astype(str).agg(" | ".join, axis=1).str.lower()
         symptom_mask = symptom_haystack.apply(lambda row: any(word in row for word in keywords))
         symptom_hits = symptom_db[symptom_mask].copy()
-
+        st.write("Symptom matches found:", len(symptom_hits))
 # -----------------------------
 # Buttons
 # -----------------------------
