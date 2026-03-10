@@ -177,17 +177,17 @@ manual_hits = pd.DataFrame()
 symptom_hits = pd.DataFrame()
 
 if search_query:
+    keywords = [word.strip() for word in search_query.lower().split() if word.strip()]
+
     if not filtered_manual.empty:
-        manual_haystack = filtered_manual.astype(str).agg(" | ".join, axis=1)
-        manual_hits = filtered_manual[
-            manual_haystack.str.contains(search_query, case=False, na=False)
-        ].copy()
+        manual_haystack = filtered_manual.astype(str).agg(" | ".join, axis=1).str.lower()
+        manual_mask = manual_haystack.apply(lambda row: any(word in row for word in keywords))
+        manual_hits = filtered_manual[manual_mask].copy()
 
     if not symptom_db.empty:
-        symptom_haystack = symptom_db.astype(str).agg(" | ".join, axis=1)
-        symptom_hits = symptom_db[
-            symptom_haystack.str.contains(search_query, case=False, na=False)
-        ].copy()
+        symptom_haystack = symptom_db.astype(str).agg(" | ".join, axis=1).str.lower()
+        symptom_mask = symptom_haystack.apply(lambda row: any(word in row for word in keywords))
+        symptom_hits = symptom_db[symptom_mask].copy()
 
 # -----------------------------
 # Buttons
@@ -259,7 +259,7 @@ if troubleshoot_clicked:
             )
 
         st.session_state["last_result"] = resp.output_text
-        st.session_state["last_result"] = "\n".join(lines)
+        
     else:
         lines = []
 
