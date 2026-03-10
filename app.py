@@ -305,7 +305,7 @@ if st.session_state["last_result"]:
 # Optional match view
 # -----------------------------
 if search_query:
-    with st.expander("Show search matches"):
+    with st.expander("Show search matches", expanded=True):
         st.subheader("Manual Matches")
         if not manual_hits.empty:
             st.dataframe(manual_hits, use_container_width=True)
