@@ -301,7 +301,19 @@ if not filtered_manual.empty and category != "All" and "category" in filtered_ma
 
 if not filtered_manual.empty and manufacturer != "All" and "manufacturer" in filtered_manual.columns:
     filtered_manual = filtered_manual[filtered_manual["manufacturer"] == manufacturer]
+filtered_manual = filtered_manual[filtered_manual["model"] == model]
 
+
+filtered_symptom = symptom_db.copy()
+
+if not filtered_symptom.empty and category != "All" and "category" in filtered_symptom.columns:
+    filtered_symptom = filtered_symptom[filtered_symptom["category"] == category]
+
+if not filtered_symptom.empty and manufacturer != "All" and "manufacturer" in filtered_symptom.columns:
+    filtered_symptom = filtered_symptom[filtered_symptom["manufacturer"] == manufacturer]
+
+if not filtered_symptom.empty and model != "All" and "model" in filtered_symptom.columns:
+    filtered_symptom = filtered_symptom[filtered_symptom["model"] == model]
 if not filtered_manual.empty and model != "All" and "model" in filtered_manual.columns:
     filtered_manual = filtered_manual[filtered_manual["model"] == model]
 
