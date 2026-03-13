@@ -59,3 +59,4 @@ GT326E,Barloader,Sensor,channel closed sensor fault,AL008,sq4 channel closed sen
 GT326E,Barloader,Sensor,channel open sensor fault,AL007,sq3 channel open switch fault feeder channel sensor problem,Check SQ3 open sensor alignment
 GT326E,Barloader,Sensor,bar length measurement sensor fault,No alarm,bar measuring stop sensor fault length measurement error feeder sensor problem,Inspect measuring stop sensor; verify position
 GT326E,Barloader,Sensor,bar detect sensor fault,No alarm,bar detect sensor not seeing bar bar detection failure sq5 sensor,Clean bar detect sensor; verify alignment and wiring
+GT326E,Barloader,Sensor,channel will not close due to sensor misadjusted,AL008,channel wont close sq4 sensor misadjusted channel closed sensor not made guide channel sensor,Adjust SQ4 channel closed sensor; verify switch position and alignment
