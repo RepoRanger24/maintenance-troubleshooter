@@ -48,3 +48,13 @@ GT326E,Barloader,Remnant,stub bar jammed in guide channel,No alarm,stub bar jam 
 GT326E,Barloader,Remnant,remnant eject cycle failed,No alarm,remnant jam eject failure stub bar stuck eject cycle,Check remnant eject cycle and verify eject mechanism
 GT326E,Barloader,Remnant,remnant stuck during unload cycle,No alarm,remnant stuck unload cycle feeder jam stub bar stuck,Inspect remnant unload path and clear obstruction
 GT326E,Barloader,Channel,bar jam in feeder,No alarm,bar jam feeder jam bar stuck feeder obstruction channel jam,Inspect feeder channel for obstruction; check for remnant or crooked bar; verify pusher travel
+GT326E,Barloader,Channel,guiding channel will not close,AL008,guide channel won't close channel stuck sq4 close failure channel obstruction,Inspect guide channel for obstruction; check SQ4 close sensor; verify channel alignment
+GT326E,Barloader,Channel,guiding channel will not open,AL007,guide channel won't open sq3 open sensor channel stuck,Inspect SQ3 open sensor; check for jammed bar in channel
+GT326E,Barloader,Channel,guide channel misaligned,No alarm,guide channel misaligned crooked bar feeder channel alignment issue,Check channel alignment and guide supports; verify bar straightness
+GT326E,Barloader,Channel,guide channel blocked with chips,No alarm,channel jam chips feeder channel blocked bar guide obstruction,Clean chips from channel; inspect guide rails
+GT326E,Barloader,Channel,guide channel closing on bar,No alarm,guide channel closing on bar misalignment feeder jam channel closing early,Check bar diameter setup; inspect channel positioning
+GT326E,Barloader,Sensor,bar detection sensor not seeing bar,SQ5,bar sensor not detecting bar sq5 sensor blocked dirty misaligned,Clean SQ5 sensor; verify alignment and wiring
+GT326E,Barloader,Sensor,home sensor not detected,AL010,sq2 home sensor not detected feeder home position error,Check SQ2 home switch; inspect wiring and adjustment
+GT326E,Barloader,Sensor,channel closed sensor fault,AL008,sq4 channel closed sensor not made channel fault,Inspect SQ4 switch; verify channel fully closed
+GT326E,Barloader,Sensor,channel open sensor fault,AL007,sq3 channel open switch fault feeder channel sensor problem,Check SQ3 open sensor alignment
+GT326E,Barloader,Sensor,bar length measurement sensor fault,No alarm,bar measuring stop sensor fault length measurement error feeder sensor problem,Inspect measuring stop sensor; verify position
