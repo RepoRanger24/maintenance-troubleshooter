@@ -47,3 +47,4 @@ GT326E,Barloader,Remnant,remnant stuck between lathe and feeder,No alarm,bar jam
 GT326E,Barloader,Remnant,stub bar jammed in guide channel,No alarm,stub bar jam remnant jam guide channel jam feeder obstruction,Clear stub bar from guide channel; inspect guide channel clearance
 GT326E,Barloader,Remnant,remnant eject cycle failed,No alarm,remnant jam eject failure stub bar stuck eject cycle,Check remnant eject cycle and verify eject mechanism
 GT326E,Barloader,Remnant,remnant stuck during unload cycle,No alarm,remnant stuck unload cycle feeder jam stub bar stuck,Inspect remnant unload path and clear obstruction
+GT326E,Barloader,Channel,bar jam in feeder,No alarm,bar jam feeder jam bar stuck feeder obstruction channel jam,Inspect feeder channel for obstruction; check for remnant or crooked bar; verify pusher travel
