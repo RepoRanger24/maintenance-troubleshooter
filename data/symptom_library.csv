@@ -22,3 +22,14 @@ GT326E,Barloader,Barloader,Main access cover open in manual mode,No alarm,"gt326
 GT326E,Barloader,Barloader,Bar feeder cannot start AUTO when guiding channel open,No alarm,"gt326e guiding channel open start failure"
 GT326E,Barloader,Barloader,Bar measuring stop not ready,No alarm,"gt326e bar measuring stop sq1 not ready"
 GT326E,Barloader,Barloader,Lathe in manual mode,No alarm,"gt326e lathe manual mode interface24 a2"
+machine,category,machine_area,symptom,likely_alarms,keywords,fix
+GT326E,Barloader,Feeder,bar not feeding to spindle,AL019 AL020 AL024,bar not feeding feeder not pushing barloader stuck pusher not advancing,Check pusher alignment; verify bar sensor; inspect feeder channel for obstruction
+GT326E,Barloader,Pusher,pusher lost bar,AL017 AL018,pusher lost bar bar dropped pusher empty feeder lost stock,Check pusher collet grip; verify bar length; inspect remnant eject cycle
+GT326E,Barloader,Channel,remnant stuck in channel,No alarm,remnant jam stub bar stuck feeder channel jam,Clear remnant from guide channel; verify remnant eject cycle
+GT326E,Barloader,Loader,bar feeder will not start in AUTO mode,No alarm,loader not starting feeder auto start failure machine ready signal missing,Verify machine ready signal; check loader AUTO mode; inspect interface signals
+GT326E,Barloader,Loader,loader not ready signal to lathe,No alarm,loader not ready machine waiting feeder ready signal missing,Check ready output signal; verify loader position sensors
+GT326E,Barloader,Measuring,bar measuring stop not ready,No alarm,measuring stop error bar length measurement failure stop sensor problem,Check measuring stop sensor; verify bar length setup
+GT326E,Barloader,Home,loader not homing properly,No alarm,loader homing failure home switch error reference failure feeder home issue,Inspect home sensor; verify homing sequence; check axis movement
+GT326E,Barloader,Channel,bar crooked in feeder channel,No alarm,bar misaligned feeder channel jam crooked bar guide problem,Check guide channel alignment; verify bar straightness
+GT326E,Barloader,Remnant,remnant too long between lathe and feeder,No alarm,remnant jam stub bar too long feeder interface jam,Remove remnant; verify remnant cutoff length
+GT326E,Barloader,Sensor,bar sensor blocked or dirty,No alarm,bar sensor fault feeder cannot detect bar sensor dirty blocked,Clean or replace bar detection sensor
