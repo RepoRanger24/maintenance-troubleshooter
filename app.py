@@ -34,7 +34,141 @@ try:
 except Exception as e:
     st.error(f"Failed to load symptom CSV: {e}")
     symptom_db = pd.DataFrame()
+# -----------------------------
+# Search scoring helpers
+# -----------------------------
+SHOP_SYNONYMS = {
+    "stuck": ["jam", "jammed", "binding", "hung"],
+    "jam": ["stuck", "jammed", "binding"],
+    "feed": ["feeding", "load", "loading", "advance", "pusher"],
+    "loader": ["barloader", "bar feeder", "feeder"],
+    "bar": ["stock", "material", "blank"],
+    "home": ["homing", "reference", "zero return"],
+    "alarm": ["fault", "error", "code"],
+    "remnant": ["stub bar", "short bar", "end piece"],
+    "ready": ["ready signal", "machine ready", "loader ready"],
+}
 
+WEIGHTS = {
+    "symptom": 3,
+    "likely_alarms": 3,
+    "alarm_code": 3,
+    "machine": 2,
+    "manufacturer": 2,
+    "model": 2,
+    "machine_area": 2,
+    "category": 1,
+    "keywords": 1,
+    "fix": 1,
+}
+
+ALARM_EXACT_BOOST = 12
+ALARM_PARTIAL_BOOST = 6
+PHRASE_MATCH_BOOST = 5
+FUZZY_MATCH_THRESHOLD = 0.84
+
+
+def clean_text(text):
+    text = str(text).lower().strip()
+    text = re.sub(r"[^a-z0-9\s\-_]", " ", text)
+    text = re.sub(r"\s+", " ", text)
+    return text
+
+
+def tokenize(text):
+    return clean_text(text).split()
+
+
+def fuzzy_ratio(a, b):
+    return SequenceMatcher(None, a, b).ratio()
+
+
+def extract_alarm_codes(text):
+    text = str(text).upper()
+    matches = re.findall(r"\b(?:[A-Z]{1,3}\d{1,4}|\d{3,4})\b", text)
+    return list(set(matches))
+
+
+def expand_query_terms(query):
+    query_clean = clean_text(query)
+    expanded = set(tokenize(query_clean))
+
+    for key, synonyms in SHOP_SYNONYMS.items():
+        if key in query_clean:
+            expanded.update(tokenize(key))
+            for syn in synonyms:
+                expanded.update(tokenize(syn))
+
+    return list(expanded)
+
+
+def score_field(field_value, query_terms, weight):
+    field_text = clean_text(field_value)
+    if not field_text:
+        return 0
+
+    field_tokens = set(tokenize(field_text))
+    score = 0
+
+    for term in query_terms:
+        term_clean = clean_text(term)
+        if not term_clean:
+            continue
+
+        if term_clean in field_tokens:
+            score += 1 * weight
+            continue
+
+        if len(term_clean.split()) > 1 and term_clean in field_text:
+            score += PHRASE_MATCH_BOOST * weight
+            continue
+
+        for token in field_tokens:
+            if fuzzy_ratio(term_clean, token) >= FUZZY_MATCH_THRESHOLD:
+                score += 0.75 * weight
+                break
+
+    return score
+
+
+def calculate_match_score(row, query):
+    query_clean = clean_text(query)
+    query_terms = expand_query_terms(query)
+    alarm_codes = extract_alarm_codes(query)
+
+    total_score = 0
+
+    for field, weight in WEIGHTS.items():
+        if field in row.index:
+            total_score += score_field(row.get(field, ""), query_terms, weight)
+
+    symptom_text = clean_text(row.get("symptom", ""))
+    keywords_text = clean_text(row.get("keywords", ""))
+    alarm_text = str(row.get("likely_alarms", "")).upper() + " " + str(row.get("alarm_code", "")).upper()
+
+    if query_clean and query_clean in symptom_text:
+        total_score += PHRASE_MATCH_BOOST * 3
+
+    if query_clean and query_clean in keywords_text:
+        total_score += PHRASE_MATCH_BOOST * 2
+
+    for code in alarm_codes:
+        if code in alarm_text.split():
+            total_score += ALARM_EXACT_BOOST
+        elif code in alarm_text:
+            total_score += ALARM_PARTIAL_BOOST
+
+    return round(total_score, 2)
+
+
+def confidence_label(score):
+    if score >= 18:
+        return "High"
+    elif score >= 8:
+        return "Medium"
+    elif score > 0:
+        return "Low"
+    return "No Match"
 # -----------------------------
 # Prompt
 # -----------------------------
