@@ -422,7 +422,7 @@ if troubleshoot_clicked:
             top_alarms = top_row.get("likely_alarms", "")
             top_score = int(top_row.get("match_score", 0))
 
-           confidence = confidence_label(top_score)
+            confidence = confidence_label(top_score)
 
             lines.append(f"Most likely problem: {top_symptom}")
             lines.append(f"Confidence: {confidence}")
