@@ -316,6 +316,28 @@ if not filtered_symptom.empty and manufacturer != "All" and "manufacturer" in fi
 
 if not filtered_symptom.empty and model != "All" and "model" in filtered_symptom.columns:
     filtered_symptom = filtered_symptom[filtered_symptom["model"] == model]
+  # -----------------------------
+# Shop language synonyms
+# -----------------------------
+SHOP_SYNONYMS = {
+    "stuck": ["jam", "jammed", "binding", "hung"],
+    "jam": ["stuck", "jammed", "binding", "obstruction"],
+    "feed": ["feeding", "load", "loading", "advance", "pusher"],
+    "loader": ["barloader", "bar feeder", "feeder"],
+    "bar": ["stock", "material", "blank"],
+    "home": ["homing", "reference", "zero return"],
+    "alarm": ["fault", "error", "code"],
+    "fault": ["alarm", "error", "failure", "problem"],
+    "remnant": ["stub bar", "short bar", "end piece"],
+    "ready": ["ready signal", "machine ready", "loader ready"],
+    "channel": ["guide channel", "feeder channel", "track", "rail"],
+    "close": ["closing", "closed", "not closing", "won't close"],
+    "open": ["opening", "opened", "not opening", "won't open"],
+    "sensor": ["switch", "prox", "photoeye", "sq"],
+    "sq4": ["channel closed sensor", "guide channel closed", "channel not closed"],
+    "sq3": ["channel open sensor", "guide channel open", "channel not open"],
+    "detect": ["detection", "see", "sensing", "present"],
+}  
 # -----------------------------
 # Search libraries
 # -----------------------------
