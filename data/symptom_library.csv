@@ -1,62 +1,12 @@
-machine,category,machine_area,symptom,likely_alarms,keywords
-
-GT326E,Barloader,Barloader,pusher lost bar,AL017 AL018,"pusher lost bar remnant sq6 home"
-
-GT326E,Barloader,Barloader,bar not feeding,AL019 AL020 AL024,"bar not feeding insertion collet top cut"
-
-GT326E,Barloader,Barloader,guiding channel won't close,AL008,"guiding channel sq4 close failure"
-
-GT326E,Barloader,Barloader,home switch problem,AL010,"sq2 home position pusher home"
-
-GT326E,Barloader,Barloader,lathe not restarting after feed,AL011,"r2 chuck signal interface"
-
-Tryton 112,Barloader,Barloader,bar not detected,SQ5,"sq5 sensor bar detect"
-
-Tryton 112,Barloader,Barloader,barloader not starting,Fanuc Interface,"cycle start interface fanuc"
-GT326E,Barloader,Barloader,Pusher in wrong position,No alarm,"pusher wrong position feeder stuck barloader home"
-GT326E,Barloader,Barloader,Remnant too long between lathe and feeder,No alarm,"remnant too long stuck barstock feeder lathe"
-GT326E,Barloader,Barloader,Movement not allowed with chuck closed,No alarm,"gt326e chuck closed movement invalid"
-GT326E,Barloader,Barloader,Bar feeder will not start in AUTO mode,No alarm,"gt326e auto start chuck open interface00"
-GT326E,Barloader,Barloader,Lathe door open detected,No alarm,"gt326e lathe door open safety"
-GT326E,Barloader,Barloader,Main access cover open in manual mode,No alarm,"gt326e cover open manual mode"
-GT326E,Barloader,Barloader,Bar feeder cannot start AUTO when guiding channel open,No alarm,"gt326e guiding channel open start failure"
-GT326E,Barloader,Barloader,Bar measuring stop not ready,No alarm,"gt326e bar measuring stop sq1 not ready"
-GT326E,Barloader,Barloader,Lathe in manual mode,No alarm,"gt326e lathe manual mode interface24 a2"
-GT326E,Barloader,Sensor,bar not detected by sensor,SQ5,bar not detected sq5 sensor bar detect failure,Check SQ5 bar detection sensor; clean sensor face; verify sensor alignment
-GT326E,Barloader,Channel,guide channel will not close,AL008,guiding channel won't close sq4 guide channel close failure,Check SQ4 guide channel switch; verify guide channel movement
-GT326E,Barloader,Interface,lathe not restarting after feed,AL011,lathe not restarting r2 chuck signal interface failure,Verify chuck signal from lathe; inspect interface wiring
-GT326E,Barloader,Interface,chuck signal not detected,No alarm,chuck signal missing interface r2 lathe signal failure,Verify chuck interface signal; inspect interface cable
-GT326E,Barloader,Pusher,pusher not advancing bar,AL019 AL020,pusher not pushing bar feeder stuck pusher motion failure,Check pusher drive; inspect guide channel; verify bar alignment
-GT326E,Barloader,Remnant,remnant not ejecting,No alarm,remnant eject failure stub bar stuck eject cycle failure,Check remnant eject cycle; verify eject mechanism
-GT326E,Barloader,Sensor,home switch not detected,AL010,sq2 home switch not detected feeder homing failure,Check SQ2 home sensor; verify sensor alignment
-GT326E,Barloader,Channel,bar jam in feeder channel,No alarm,bar jam channel obstruction feeder jam stock stuck,Inspect feeder channel; remove obstruction
-GT326E,Barloader,Alignment,bar misaligned entering spindle,No alarm,bar misaligned feeder spindle alignment issue,Verify guide channel alignment; check bar straightness
-GT326E,Barloader,Loader,loader cycle interrupted,No alarm,loader cycle interrupted feeder stop mid cycle,Reset feeder cycle; verify safety signals
-GT326E,Barloader,Safety,feeder safety cover open,No alarm,feeder cover open safety interlock triggered,Verify safety cover closed; inspect interlock switch
-GT326E,Barloader,Sensor,bar length measurement incorrect,No alarm,bar length measurement incorrect measuring stop error,Verify measuring stop position; recalibrate measurement
-GT326E,Barloader,Channel,bar rubbing in guide channel,No alarm,bar rubbing channel friction feeder guide issue,Inspect guide channel wear; adjust channel guides
-GT326E,Barloader,Pusher,pusher retract failure,No alarm,pusher retract failure pusher stuck extended,Check pusher retract sensor; inspect pusher drive
-GT326E,Barloader,Loader,loader cycle not completing,No alarm,loader cycle incomplete feeder sequence stop,Check feeder sequence sensors; verify PLC signals
-GT326E,Barloader,Sensor,bar present signal stuck ON,No alarm,bar present signal stuck sq5 sensor stuck,Inspect SQ5 sensor; clean or replace sensor
-GT326E,Barloader,Sensor,bar present signal stuck OFF,No alarm,bar present signal missing sq5 sensor failure,Verify sensor wiring; check sensor alignment
-GT326E,Barloader,Interface,lathe ready signal missing,No alarm,lathe ready signal missing interface machine ready failure,Verify machine ready signal wiring
-GT326E,Barloader,Drive,pusher drive motor fault,No alarm,pusher drive motor fault feeder drive failure,Inspect pusher motor; verify drive controller
-GT326E,Barloader,Alignment,pusher misaligned with bar,No alarm,pusher misaligned feeder pusher alignment issue,Realign pusher mechanism; verify bar centerline
-GT326E,Barloader,Remnant,remnant jam in feeder channel,No alarm,bar jam remnant jam stub bar jam feeder jam remnant stuck channel,Remove remnant from feeder channel; verify remnant eject cycle
-GT326E,Barloader,Remnant,remnant stuck between lathe and feeder,No alarm,bar jam remnant stuck lathe interface stub bar jam,Remove stub bar; verify remnant cutoff length
-GT326E,Barloader,Remnant,stub bar jammed in guide channel,No alarm,stub bar jam remnant jam guide channel jam feeder obstruction,Clear stub bar from guide channel; inspect guide channel clearance
-GT326E,Barloader,Remnant,remnant eject cycle failed,No alarm,remnant jam eject failure stub bar stuck eject cycle,Check remnant eject cycle and verify eject mechanism
-GT326E,Barloader,Remnant,remnant stuck during unload cycle,No alarm,remnant stuck unload cycle feeder jam stub bar stuck,Inspect remnant unload path and clear obstruction
-GT326E,Barloader,Channel,bar jam in feeder,No alarm,bar jam feeder jam bar stuck feeder obstruction channel jam,Inspect feeder channel for obstruction; check for remnant or crooked bar; verify pusher travel
-GT326E,Barloader,Channel,guiding channel will not close,AL008,guide channel won't close channel stuck sq4 close failure channel obstruction,Inspect guide channel for obstruction; check SQ4 close sensor; verify channel alignment
-GT326E,Barloader,Channel,guiding channel will not open,AL007,guide channel won't open sq3 open sensor channel stuck,Inspect SQ3 open sensor; check for jammed bar in channel
-GT326E,Barloader,Channel,guide channel misaligned,No alarm,guide channel misaligned crooked bar feeder channel alignment issue,Check channel alignment and guide supports; verify bar straightness
-GT326E,Barloader,Channel,guide channel blocked with chips,No alarm,channel jam chips feeder channel blocked bar guide obstruction,Clean chips from channel; inspect guide rails
-GT326E,Barloader,Channel,guide channel closing on bar,No alarm,guide channel closing on bar misalignment feeder jam channel closing early,Check bar diameter setup; inspect channel positioning
-GT326E,Barloader,Sensor,bar detection sensor not seeing bar,SQ5,bar sensor not detecting bar sq5 sensor blocked dirty misaligned,Clean SQ5 sensor; verify alignment and wiring
-GT326E,Barloader,Sensor,home sensor not detected,AL010,sq2 home sensor not detected feeder home position error,Check SQ2 home switch; inspect wiring and adjustment
-GT326E,Barloader,Sensor,channel closed sensor fault,AL008,sq4 channel closed sensor not made channel fault,Inspect SQ4 switch; verify channel fully closed
-GT326E,Barloader,Sensor,channel open sensor fault,AL007,sq3 channel open switch fault feeder channel sensor problem,Check SQ3 open sensor alignment
-GT326E,Barloader,Sensor,bar length measurement sensor fault,No alarm,bar measuring stop sensor fault length measurement error feeder sensor problem,Inspect measuring stop sensor; verify position
-GT326E,Barloader,Sensor,bar detect sensor fault,No alarm,bar detect sensor not seeing bar bar detection failure sq5 sensor,Clean bar detect sensor; verify alignment and wiring
-GT326E,Barloader,Sensor,channel will not close due to sensor misadjusted,AL008,channel wont close sq4 sensor misadjusted channel closed sensor not made guide channel sensor,Adjust SQ4 channel closed sensor; verify switch position and alignment
+machine,category,machine_area,symptom,likely_alarms,keywords,fix
+GT326E,Barloader,Feeder,bar not feeding to spindle,AL019 AL020 AL024,bar not feeding feeder not pushing barloader stuck pusher not advancing,Check pusher alignment; verify bar sensor; inspect feeder channel for obstruction
+GT326E,Barloader,Pusher,pusher lost bar,AL017 AL018,pusher lost bar bar dropped pusher empty feeder lost stock,Check pusher collet grip; verify bar length; inspect remnant eject cycle
+GT326E,Barloader,Channel,remnant stuck in channel,No alarm,remnant jam stub bar stuck feeder channel jam,Clear remnant from guide channel; verify remnant eject cycle
+GT326E,Barloader,Loader,bar feeder will not start in AUTO mode,No alarm,loader not starting feeder auto start failure machine ready signal missing,Verify machine ready signal; check loader AUTO mode; inspect interface signals
+GT326E,Barloader,Loader,loader not ready signal to lathe,No alarm,loader not ready machine waiting feeder ready signal missing,Check ready output signal; verify loader position sensors
+GT326E,Barloader,Measuring,bar measuring stop not ready,No alarm,measuring stop error bar length measurement failure stop sensor problem,Check measuring stop sensor; verify bar length setup
+GT326E,Barloader,Home,loader not homing properly,No alarm,loader homing failure home switch error reference failure feeder home issue,Inspect home sensor; verify homing sequence; check axis movement
+GT326E,Barloader,Channel,bar crooked in feeder channel,No alarm,bar misaligned feeder channel jam crooked bar guide problem,Check guide channel alignment; verify bar straightness
+GT326E,Barloader,Remnant,remnant too long between lathe and feeder,No alarm,remnant jam stub bar too long feeder interface jam,Remove remnant; verify remnant cutoff length
+GT326E,Barloader,Sensor,bar sensor blocked or dirty,No alarm,bar sensor fault feeder cannot detect bar sensor dirty blocked,Clean or replace bar detection sensor
+GT326E,Barloader,Sensor,bar detect sensor not seeing bar,No alarm,bar detect sensor not seeing bar sq5 sensor detection failure,Clean SQ5 sensor; verify alignment and wiring

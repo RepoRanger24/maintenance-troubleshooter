@@ -2,7 +2,8 @@ import os
 import streamlit as st
 import pandas as pd
 from openai import OpenAI
-
+import re
+from difflib import SequenceMatcher
 # -----------------------------
 # Session state
 # -----------------------------
@@ -33,7 +34,149 @@ try:
 except Exception as e:
     st.error(f"Failed to load symptom CSV: {e}")
     symptom_db = pd.DataFrame()
+# -----------------------------
+# Search scoring helpers
+# -----------------------------
+SHOP_SYNONYMS = {
+    "stuck": ["jam", "jammed", "binding", "hung"],
+    "jam": ["stuck", "jammed", "binding", "obstruction"],
+    "feed": ["feeding", "load", "loading", "advance", "pusher"],
+    "loader": ["barloader", "bar feeder", "feeder"],
+    "bar": ["stock", "material", "blank"],
+    "home": ["homing", "reference", "zero return"],
+    "alarm": ["fault", "error", "code"],
+    "fault": ["alarm", "error", "failure", "problem"],
+    "remnant": ["stub bar", "short bar", "end piece"],
+    "ready": ["ready signal", "machine ready", "loader ready"],
+    "channel": ["guide channel", "feeder channel", "track", "rail"],
+    "close": ["closing", "closed", "not closing", "won't close"],
+    "open": ["opening", "opened", "not opening", "won't open"],
+    "sensor": ["switch", "prox", "photoeye", "sq"],
+    "sq4": ["channel closed sensor", "guide channel closed", "channel not closed"],
+    "sq3": ["channel open sensor", "guide channel open", "channel not open"],
+    "detect": ["detection", "see", "sensing", "present"],
+}
 
+WEIGHTS = {
+    "symptom": 3,
+    "likely_alarms": 3,
+    "alarm_code": 3,
+    "machine": 2,
+    "manufacturer": 2,
+    "model": 2,
+    "machine_area": 2,
+    "category": 1,
+    "keywords": 1,
+    "fix": 1,
+}
+
+ALARM_EXACT_BOOST = 12
+ALARM_PARTIAL_BOOST = 6
+PHRASE_MATCH_BOOST = 5
+FUZZY_MATCH_THRESHOLD = 0.84
+
+
+def clean_text(text):
+    text = str(text).lower().strip()
+    text = re.sub(r"[^a-z0-9\s\-_]", " ", text)
+    text = re.sub(r"\s+", " ", text)
+    return text
+
+
+def tokenize(text):
+    return clean_text(text).split()
+
+
+def fuzzy_ratio(a, b):
+    return SequenceMatcher(None, a, b).ratio()
+
+
+def extract_alarm_codes(text):
+    text = str(text).upper()
+    matches = re.findall(r"\b(?:[A-Z]{1,3}\d{1,4}|\d{3,4})\b", text)
+    return list(set(matches))
+
+
+def expand_query_terms(query):
+    query_clean = clean_text(query)
+    expanded = set(tokenize(query_clean))
+
+    for key, synonyms in SHOP_SYNONYMS.items():
+        if key in query_clean:
+            expanded.update(tokenize(key))
+            for syn in synonyms:
+                expanded.update(tokenize(syn))
+
+    return list(expanded)
+
+
+def score_field(field_value, query_terms, weight):
+    field_text = clean_text(field_value)
+    if not field_text:
+        return 0
+
+    field_tokens = set(tokenize(field_text))
+    score = 0
+
+    for term in query_terms:
+        term_clean = clean_text(term)
+        if not term_clean:
+            continue
+
+        if term_clean in field_tokens:
+            score += 1 * weight
+            continue
+
+        if len(term_clean.split()) > 1 and term_clean in field_text:
+            score += PHRASE_MATCH_BOOST * weight
+            continue
+
+        for token in field_tokens:
+            if fuzzy_ratio(term_clean, token) >= FUZZY_MATCH_THRESHOLD:
+                score += 0.75 * weight
+                break
+
+    return score
+
+
+def calculate_match_score(row, query):
+    query_clean = clean_text(query)
+    query_terms = expand_query_terms(query)
+    alarm_codes = extract_alarm_codes(query)
+
+    total_score = 0
+
+    for field, weight in WEIGHTS.items():
+        if field in row.index:
+            total_score += score_field(row.get(field, ""), query_terms, weight)
+
+    symptom_text = clean_text(row.get("symptom", ""))
+    keywords_text = clean_text(row.get("keywords", ""))
+    alarm_text = str(row.get("likely_alarms", "")).upper() + " " + str(row.get("alarm_code", "")).upper()
+
+    if query_clean and query_clean in symptom_text:
+        total_score += PHRASE_MATCH_BOOST * 3
+
+    if query_clean and query_clean in keywords_text:
+        total_score += PHRASE_MATCH_BOOST * 2
+
+    for code in alarm_codes:
+        if code in alarm_text.split():
+            total_score += ALARM_EXACT_BOOST
+        elif code in alarm_text:
+            total_score += ALARM_PARTIAL_BOOST
+
+    return round(total_score, 2)
+
+
+def confidence_label(score):
+    if score >= 18:
+        return "High"
+    elif score >= 8:
+        return "Medium"
+    elif score > 0:
+        return "Low"
+    return "No Match"
 # -----------------------------
 # Prompt
 # -----------------------------
@@ -170,6 +313,18 @@ if not filtered_manual.empty and manufacturer != "All" and "manufacturer" in fil
 if not filtered_manual.empty and model != "All" and "model" in filtered_manual.columns:
     filtered_manual = filtered_manual[filtered_manual["model"] == model]
 
+
+filtered_symptom = symptom_db.copy()
+
+if not filtered_symptom.empty and category != "All" and "category" in filtered_symptom.columns:
+    filtered_symptom = filtered_symptom[filtered_symptom["category"] == category]
+
+if not filtered_symptom.empty and manufacturer != "All" and "manufacturer" in filtered_symptom.columns:
+    filtered_symptom = filtered_symptom[filtered_symptom["manufacturer"] == manufacturer]
+
+if not filtered_symptom.empty and model != "All" and "model" in filtered_symptom.columns:
+    filtered_symptom = filtered_symptom[filtered_symptom["model"] == model]
+ 
 # -----------------------------
 # Search libraries
 # -----------------------------
@@ -177,26 +332,24 @@ manual_hits = pd.DataFrame()
 symptom_hits = pd.DataFrame()
 
 if search_query:
-    keywords = [word.strip() for word in search_query.lower().split() if word.strip()]
-
     if not filtered_manual.empty:
-        manual_haystack = filtered_manual.astype(str).agg(" | ".join, axis=1).str.lower()
-        manual_scores = manual_haystack.apply(
-            lambda row: sum(1 for word in keywords if word in row)
+        manual_hits = filtered_manual.copy()
+        manual_hits["match_score"] = manual_hits.apply(
+            lambda row: calculate_match_score(row, search_query), axis=1
         )
-        manual_hits = filtered_manual[manual_scores > 0].copy()
+        manual_hits = manual_hits[manual_hits["match_score"] > 0].copy()
         if not manual_hits.empty:
-            manual_hits["match_score"] = manual_scores[manual_scores > 0].values
+            manual_hits["confidence"] = manual_hits["match_score"].apply(confidence_label)
             manual_hits = manual_hits.sort_values(by="match_score", ascending=False)
 
-    if not symptom_db.empty:
-        symptom_haystack = symptom_db.astype(str).agg(" | ".join, axis=1).str.lower()
-        symptom_scores = symptom_haystack.apply(
-            lambda row: sum(1 for word in keywords if word in row)
+    if not filtered_symptom.empty:
+        symptom_hits = filtered_symptom.copy()
+        symptom_hits["match_score"] = symptom_hits.apply(
+            lambda row: calculate_match_score(row, search_query), axis=1
         )
-        symptom_hits = symptom_db[symptom_scores > 0].copy()
+        symptom_hits = symptom_hits[symptom_hits["match_score"] > 0].copy()
         if not symptom_hits.empty:
-            symptom_hits["match_score"] = symptom_scores[symptom_scores > 0].values
+            symptom_hits["confidence"] = symptom_hits["match_score"].apply(confidence_label)
             symptom_hits = symptom_hits.sort_values(by="match_score", ascending=False)
 
 # -----------------------------
@@ -278,12 +431,7 @@ if troubleshoot_clicked:
             top_alarms = top_row.get("likely_alarms", "")
             top_score = int(top_row.get("match_score", 0))
 
-            if top_score >= 3:
-                confidence = "High"
-            elif top_score == 2:
-                confidence = "Medium"
-            else:
-                confidence = "Low"
+            confidence = confidence_label(top_score)
 
             lines.append(f"Most likely problem: {top_symptom}")
             lines.append(f"Confidence: {confidence}")
