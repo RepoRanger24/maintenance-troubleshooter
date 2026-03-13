@@ -9,3 +9,4 @@ GT326E,Barloader,Home,loader not homing properly,No alarm,loader homing failure 
 GT326E,Barloader,Channel,bar crooked in feeder channel,No alarm,bar misaligned feeder channel jam crooked bar guide problem,Check guide channel alignment; verify bar straightness
 GT326E,Barloader,Remnant,remnant too long between lathe and feeder,No alarm,remnant jam stub bar too long feeder interface jam,Remove remnant; verify remnant cutoff length
 GT326E,Barloader,Sensor,bar sensor blocked or dirty,No alarm,bar sensor fault feeder cannot detect bar sensor dirty blocked,Clean or replace bar detection sensor
+GT326E,Barloader,Sensor,bar detect sensor not seeing bar,No alarm,bar detect sensor not seeing bar sq5 sensor detection failure,Clean SQ5 sensor; verify alignment and wiring
