@@ -58,3 +58,4 @@ GT326E,Barloader,Sensor,home sensor not detected,AL010,sq2 home sensor not detec
 GT326E,Barloader,Sensor,channel closed sensor fault,AL008,sq4 channel closed sensor not made channel fault,Inspect SQ4 switch; verify channel fully closed
 GT326E,Barloader,Sensor,channel open sensor fault,AL007,sq3 channel open switch fault feeder channel sensor problem,Check SQ3 open sensor alignment
 GT326E,Barloader,Sensor,bar length measurement sensor fault,No alarm,bar measuring stop sensor fault length measurement error feeder sensor problem,Inspect measuring stop sensor; verify position
+GT326E,Barloader,Sensor,bar detect sensor fault,No alarm,bar detect sensor not seeing bar bar detection failure sq5 sensor,Clean bar detect sensor; verify alignment and wiring
