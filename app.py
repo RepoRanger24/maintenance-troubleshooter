@@ -323,26 +323,24 @@ manual_hits = pd.DataFrame()
 symptom_hits = pd.DataFrame()
 
 if search_query:
-    keywords = [word.strip() for word in search_query.lower().split() if word.strip()]
-
     if not filtered_manual.empty:
-        manual_haystack = filtered_manual.astype(str).agg(" | ".join, axis=1).str.lower()
-        manual_scores = manual_haystack.apply(
-            lambda row: sum(1 for word in keywords if word in row)
+        manual_hits = filtered_manual.copy()
+        manual_hits["match_score"] = manual_hits.apply(
+            lambda row: calculate_match_score(row, search_query), axis=1
         )
-        manual_hits = filtered_manual[manual_scores > 0].copy()
+        manual_hits = manual_hits[manual_hits["match_score"] > 0].copy()
         if not manual_hits.empty:
-            manual_hits["match_score"] = manual_scores[manual_scores > 0].values
+            manual_hits["confidence"] = manual_hits["match_score"].apply(confidence_label)
             manual_hits = manual_hits.sort_values(by="match_score", ascending=False)
 
-    if not symptom_db.empty:
-        symptom_haystack = symptom_db.astype(str).agg(" | ".join, axis=1).str.lower()
-        symptom_scores = symptom_haystack.apply(
-            lambda row: sum(1 for word in keywords if word in row)
+    if not filtered_symptom.empty:
+        symptom_hits = filtered_symptom.copy()
+        symptom_hits["match_score"] = symptom_hits.apply(
+            lambda row: calculate_match_score(row, search_query), axis=1
         )
-        symptom_hits = symptom_db[symptom_scores > 0].copy()
+        symptom_hits = symptom_hits[symptom_hits["match_score"] > 0].copy()
         if not symptom_hits.empty:
-            symptom_hits["match_score"] = symptom_scores[symptom_scores > 0].values
+            symptom_hits["confidence"] = symptom_hits["match_score"].apply(confidence_label)
             symptom_hits = symptom_hits.sort_values(by="match_score", ascending=False)
 
 # -----------------------------
