@@ -1,27 +1,3 @@
-machine,category,machine_area,symptom,likely_alarms,keywords
-
-GT326E,Barloader,Barloader,pusher lost bar,AL017 AL018,"pusher lost bar remnant sq6 home"
-
-GT326E,Barloader,Barloader,bar not feeding,AL019 AL020 AL024,"bar not feeding insertion collet top cut"
-
-GT326E,Barloader,Barloader,guiding channel won't close,AL008,"guiding channel sq4 close failure"
-
-GT326E,Barloader,Barloader,home switch problem,AL010,"sq2 home position pusher home"
-
-GT326E,Barloader,Barloader,lathe not restarting after feed,AL011,"r2 chuck signal interface"
-
-Tryton 112,Barloader,Barloader,bar not detected,SQ5,"sq5 sensor bar detect"
-
-Tryton 112,Barloader,Barloader,barloader not starting,Fanuc Interface,"cycle start interface fanuc"
-GT326E,Barloader,Barloader,Pusher in wrong position,No alarm,"pusher wrong position feeder stuck barloader home"
-GT326E,Barloader,Barloader,Remnant too long between lathe and feeder,No alarm,"remnant too long stuck barstock feeder lathe"
-GT326E,Barloader,Barloader,Movement not allowed with chuck closed,No alarm,"gt326e chuck closed movement invalid"
-GT326E,Barloader,Barloader,Bar feeder will not start in AUTO mode,No alarm,"gt326e auto start chuck open interface00"
-GT326E,Barloader,Barloader,Lathe door open detected,No alarm,"gt326e lathe door open safety"
-GT326E,Barloader,Barloader,Main access cover open in manual mode,No alarm,"gt326e cover open manual mode"
-GT326E,Barloader,Barloader,Bar feeder cannot start AUTO when guiding channel open,No alarm,"gt326e guiding channel open start failure"
-GT326E,Barloader,Barloader,Bar measuring stop not ready,No alarm,"gt326e bar measuring stop sq1 not ready"
-GT326E,Barloader,Barloader,Lathe in manual mode,No alarm,"gt326e lathe manual mode interface24 a2"
 machine,category,machine_area,symptom,likely_alarms,keywords,fix
 GT326E,Barloader,Feeder,bar not feeding to spindle,AL019 AL020 AL024,bar not feeding feeder not pushing barloader stuck pusher not advancing,Check pusher alignment; verify bar sensor; inspect feeder channel for obstruction
 GT326E,Barloader,Pusher,pusher lost bar,AL017 AL018,pusher lost bar bar dropped pusher empty feeder lost stock,Check pusher collet grip; verify bar length; inspect remnant eject cycle
