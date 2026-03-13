@@ -42,3 +42,8 @@ GT326E,Barloader,Sensor,bar present signal stuck OFF,No alarm,bar present signal
 GT326E,Barloader,Interface,lathe ready signal missing,No alarm,lathe ready signal missing interface machine ready failure,Verify machine ready signal wiring
 GT326E,Barloader,Drive,pusher drive motor fault,No alarm,pusher drive motor fault feeder drive failure,Inspect pusher motor; verify drive controller
 GT326E,Barloader,Alignment,pusher misaligned with bar,No alarm,pusher misaligned feeder pusher alignment issue,Realign pusher mechanism; verify bar centerline
+GT326E,Barloader,Remnant,remnant jam in feeder channel,No alarm,bar jam remnant jam stub bar jam feeder jam remnant stuck channel,Remove remnant from feeder channel; verify remnant eject cycle
+GT326E,Barloader,Remnant,remnant stuck between lathe and feeder,No alarm,bar jam remnant stuck lathe interface stub bar jam,Remove stub bar; verify remnant cutoff length
+GT326E,Barloader,Remnant,stub bar jammed in guide channel,No alarm,stub bar jam remnant jam guide channel jam feeder obstruction,Clear stub bar from guide channel; inspect guide channel clearance
+GT326E,Barloader,Remnant,remnant eject cycle failed,No alarm,remnant jam eject failure stub bar stuck eject cycle,Check remnant eject cycle and verify eject mechanism
+GT326E,Barloader,Remnant,remnant stuck during unload cycle,No alarm,remnant stuck unload cycle feeder jam stub bar stuck,Inspect remnant unload path and clear obstruction
